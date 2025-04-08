@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
+import { TranslationTool } from '@/components/TranslationTool';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 
@@ -14,8 +15,13 @@ interface Message {
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [detectedLanguage, setDetectedLanguage] = useState<string>();
 
   const handleSendMessage = async (content: string) => {
+    // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
+    const detectedLang = content.match(/[\u4e00-\u9fa5]/) ? 'zh' : 'en';
+    setDetectedLanguage(detectedLang);
+
     // 添加用户消息，保持原始格式
     const userMessage: Message = {
       role: 'user',
@@ -47,37 +53,49 @@ export default function Home() {
 
   const handleNewChat = () => {
     setMessages([]);
+    setDetectedLanguage(undefined);
   };
 
   const firstMessage = messages.length > 0 ? messages[0] : null;
 
   return (
-    <main className="h-screen flex flex-col bg-gray-50">
-      <div className="flex-none px-4 py-3 bg-white border-b border-gray-100">
-        <div className="max-w-3xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-900">AI客服助手</h1>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-            onClick={handleNewChat}
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>新建聊天</span>
-          </Button>
+    <main className="h-screen flex bg-gray-50">
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-none px-4 py-3 bg-white border-b border-gray-100">
+          <div className="max-w-3xl mx-auto flex justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-900">AI客服助手</h1>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+              onClick={handleNewChat}
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>新建聊天</span>
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex-none bg-white border-b border-gray-100">
+          <TicketContent 
+            originalContent={firstMessage?.content}
+            translatedContent={firstMessage?.translated}
+          />
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+          <ChatInterface
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            onTranslate={handleTranslate}
+          />
         </div>
       </div>
       
-      <TicketContent 
-        originalContent={firstMessage?.content}
-        translatedContent={firstMessage?.translated}
-      />
-
-      <div className="flex-1 overflow-hidden">
-        <ChatInterface
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          onTranslate={handleTranslate}
+      <div className="w-80 flex-none border-l border-gray-100">
+        <TranslationTool 
+          detectedLanguage={detectedLanguage}
+          onReset={handleNewChat}
         />
       </div>
     </main>
