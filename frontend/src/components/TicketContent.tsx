@@ -17,8 +17,8 @@ export function TicketContent({ originalContent, translatedContent }: TicketCont
 
   return (
     <div className="bg-white flex-none">
-      <div className="max-w-3xl mx-auto p-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="max-w-3xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
               <MessageSquare className="w-5 h-5 text-gray-500" />
@@ -36,7 +36,7 @@ export function TicketContent({ originalContent, translatedContent }: TicketCont
             </Button>
           )}
         </div>
-        <div className="pl-10">
+        <div className="pl-10 mt-3">
           {hasContent ? (
             <>
               <div 

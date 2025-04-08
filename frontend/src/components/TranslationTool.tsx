@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Languages, ArrowRight, RefreshCw } from 'lucide-react';
+import { Languages, ArrowRight, RefreshCw, ArrowLeftRight } from 'lucide-react';
 
 interface TranslationToolProps {
   detectedLanguage?: string;
@@ -49,7 +49,7 @@ export function TranslationTool({ detectedLanguage, onReset }: TranslationToolPr
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="flex-none p-4 border-b border-gray-100">
+      <div className="flex-none px-4 py-3 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
@@ -78,11 +78,11 @@ export function TranslationTool({ detectedLanguage, onReset }: TranslationToolPr
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
+              className="h-6 w-6 p-0 text-gray-600 hover:text-gray-900"
               onClick={toggleLanguages}
+              title="切换语言"
             >
-              <RefreshCw className="w-3 h-3 mr-1" />
-              切换
+              <ArrowLeftRight className="w-4 h-4" />
             </Button>
           </div>
           <Textarea
@@ -95,13 +95,13 @@ export function TranslationTool({ detectedLanguage, onReset }: TranslationToolPr
         
         <div className="flex justify-center">
           <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
+            size="icon"
+            className="h-8 w-8 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
             onClick={handleTranslate}
             disabled={!sourceText.trim()}
+            title="翻译"
           >
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
         
