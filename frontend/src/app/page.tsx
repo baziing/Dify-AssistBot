@@ -16,7 +16,7 @@ interface Message {
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [detectedLanguage, setDetectedLanguage] = useState<string>();
-  const [showTranslation, setShowTranslation] = useState(true);
+  const [showTranslation, setShowTranslation] = useState(false);
 
   const handleSendMessage = async (content: string) => {
     // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
