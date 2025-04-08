@@ -5,7 +5,7 @@ import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -16,6 +16,7 @@ interface Message {
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [detectedLanguage, setDetectedLanguage] = useState<string>();
+  const [showTranslation, setShowTranslation] = useState(true);
 
   const handleSendMessage = async (content: string) => {
     // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
@@ -66,20 +67,37 @@ export default function Home() {
   const firstMessage = messages.length > 0 ? messages[0] : null;
 
   return (
-    <main className="h-screen flex bg-gray-50">
-      <div className="flex-1 flex flex-col min-h-0">
+    <main className="h-screen flex bg-gray-50 relative overflow-hidden">
+      <div className={`flex-1 flex flex-col min-h-0 transition-all duration-300 ${
+        showTranslation ? 'mr-80' : 'mr-0'
+      }`}>
         <div className="flex-none px-4 py-3 bg-white border-b border-gray-100">
           <div className="max-w-3xl mx-auto flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">AI客服助手</h1>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-              onClick={handleNewChat}
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>新建聊天</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                onClick={() => setShowTranslation(!showTranslation)}
+              >
+                {showTranslation ? (
+                  <ToggleRight className="w-4 h-4" />
+                ) : (
+                  <ToggleLeft className="w-4 h-4" />
+                )}
+                <span>翻译工具</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                onClick={handleNewChat}
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>新建聊天</span>
+              </Button>
+            </div>
           </div>
         </div>
         
@@ -99,7 +117,9 @@ export default function Home() {
         </div>
       </div>
       
-      <div className="w-80 flex-none border-l border-gray-100 bg-white">
+      <div className={`w-80 flex-none border-l border-gray-100 bg-white transition-all duration-300 absolute right-0 top-0 bottom-0 ${
+        showTranslation ? 'translate-x-0' : 'translate-x-full'
+      }`}>
         <TranslationTool 
           ref={translationToolRef}
           detectedLanguage={detectedLanguage}
