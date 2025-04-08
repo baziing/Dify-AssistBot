@@ -83,7 +83,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0 bg-white">
           <ChatInterface
             messages={messages}
             onSendMessage={handleSendMessage}
@@ -92,7 +92,7 @@ export default function Home() {
         </div>
       </div>
       
-      <div className="w-80 flex-none border-l border-gray-100">
+      <div className="w-80 flex-none border-l border-gray-100 bg-white">
         <TranslationTool 
           detectedLanguage={detectedLanguage}
           onReset={handleNewChat}

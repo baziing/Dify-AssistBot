@@ -57,13 +57,14 @@ export function TranslationTool({ detectedLanguage, onReset }: TranslationToolPr
             </div>
             <h2 className="text-sm font-medium text-gray-700">翻译工具</h2>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900"
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
             onClick={handleReset}
           >
-            重置
+            <RefreshCw className="w-4 h-4" />
+            <span>重置</span>
           </Button>
         </div>
       </div>

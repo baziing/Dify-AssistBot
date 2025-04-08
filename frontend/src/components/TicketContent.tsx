@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Languages, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TicketContentProps {
   originalContent?: string;
@@ -21,7 +21,7 @@ export function TicketContent({ originalContent, translatedContent }: TicketCont
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
-              <Languages className="w-5 h-5 text-gray-500" />
+              <MessageSquare className="w-5 h-5 text-gray-500" />
             </div>
             <h2 className="text-sm font-medium text-gray-700">工单内容</h2>
           </div>
@@ -29,7 +29,7 @@ export function TicketContent({ originalContent, translatedContent }: TicketCont
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-3 text-xs text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
               onClick={() => setShowOriginal(!showOriginal)}
             >
               {showOriginal ? '显示中文' : '显示原文'}
