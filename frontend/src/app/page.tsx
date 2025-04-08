@@ -9,39 +9,47 @@ import { PlusCircle } from 'lucide-react';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  translated?: string;
 }
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
-  
-  // 示例数据，实际应该从API获取
-  const ticketData = {
-    originalContent: "Hello, I need help with my account.",
-    translatedContent: "你好，我需要帮助处理我的账户问题。"
-  };
 
   const handleSendMessage = async (content: string) => {
-    // 添加用户消息
-    const userMessage: Message = { role: 'user', content };
+    // 添加用户消息，保持原始格式
+    const userMessage: Message = {
+      role: 'user',
+      content: content,
+      // 如果是第一条消息，自动添加翻译，保持原始格式
+      translated: messages.length === 0 ? content : undefined
+    };
     setMessages(prev => [...prev, userMessage]);
 
-    // TODO: 调用Dify API获取AI响应
-    // 这里暂时使用模拟数据
-    const aiResponse: Message = {
-      role: 'assistant',
-      content: '感谢您的咨询。请问您具体遇到了什么问题？'
-    };
-    setMessages(prev => [...prev, aiResponse]);
+    // 模拟AI助手回复
+    setTimeout(() => {
+      const aiResponse: Message = {
+        role: 'assistant',
+        content: '您好！我是AI客服助手。我已经收到您的工单内容，请问还有什么可以帮助您的吗？'
+      };
+      setMessages(prev => [...prev, aiResponse]);
+    }, 1000);
+
+    // TODO: 在实际应用中，这里需要调用Dify API获取真实的AI回复
   };
 
-  const handleTranslate = (content: string) => {
-    // TODO: 实现翻译功能
-    console.log('翻译内容:', content);
+  const handleTranslate = async (content: string) => {
+    // 更新第一条消息的翻译，保持原始格式
+    setMessages(prev => prev.map((msg, index) => 
+      index === 0 ? { ...msg, translated: content } : msg
+    ));
+    // TODO: 在实际应用中，这里需要调用翻译API
   };
 
   const handleNewChat = () => {
     setMessages([]);
   };
+
+  const firstMessage = messages.length > 0 ? messages[0] : null;
 
   return (
     <main className="h-screen flex flex-col bg-gray-50">
@@ -60,14 +68,12 @@ export default function Home() {
         </div>
       </div>
       
-      <div className="flex-none border-b border-gray-100">
-        <TicketContent
-          originalContent={ticketData.originalContent}
-          translatedContent={ticketData.translatedContent}
-        />
-      </div>
+      <TicketContent 
+        originalContent={firstMessage?.content}
+        translatedContent={firstMessage?.translated}
+      />
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 overflow-hidden">
         <ChatInterface
           messages={messages}
           onSendMessage={handleSendMessage}

@@ -85,12 +85,15 @@ export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInte
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="输入消息..."
-                className="min-h-[52px] max-h-[90px] w-full resize-none border-0 bg-transparent px-4 py-[14px] focus:ring-0 focus-visible:ring-0"
+                placeholder="请输入您的问题..."
+                className="min-h-[60px] max-h-[90px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-4"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    handleSubmit(e);
+                    if (input.trim()) {
+                      onSendMessage(input);
+                      setInput('');
+                    }
                   }
                 }}
               />
