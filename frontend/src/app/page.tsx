@@ -5,7 +5,7 @@ import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, ToggleLeft, ToggleRight } from 'lucide-react';
+import { PlusCircle, Languages } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -81,11 +81,7 @@ export default function Home() {
                 className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
                 onClick={() => setShowTranslation(!showTranslation)}
               >
-                {showTranslation ? (
-                  <ToggleRight className="w-4 h-4" />
-                ) : (
-                  <ToggleLeft className="w-4 h-4" />
-                )}
+                <Languages className={`w-4 h-4 ${showTranslation ? 'text-gray-600' : 'text-gray-400'}`} />
                 <span>翻译工具</span>
               </Button>
               <Button 
