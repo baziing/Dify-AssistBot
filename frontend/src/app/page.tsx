@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
@@ -54,7 +54,14 @@ export default function Home() {
   const handleNewChat = () => {
     setMessages([]);
     setDetectedLanguage(undefined);
+    // 重置翻译工具的状态
+    if (translationToolRef.current) {
+      translationToolRef.current.resetTool();
+    }
   };
+
+  // 创建一个ref来引用翻译工具组件
+  const translationToolRef = useRef<{ resetTool: () => void }>(null);
 
   const firstMessage = messages.length > 0 ? messages[0] : null;
 
@@ -94,6 +101,7 @@ export default function Home() {
       
       <div className="w-80 flex-none border-l border-gray-100 bg-white">
         <TranslationTool 
+          ref={translationToolRef}
           detectedLanguage={detectedLanguage}
           onReset={handleNewChat}
         />
