@@ -3,6 +3,6 @@ const nextConfig = {
   devIndicators: {
     buildActivity: false,
   },
-}
+};
 
-export default nextConfig 
+export default nextConfig; 
