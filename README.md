@@ -9,15 +9,19 @@
 - 🔄 实时翻译：内置翻译工具，支持工单内容和对话的实时翻译
 - 🎨 现代化界面：基于 React + TypeScript 构建的响应式界面
 - 🚀 流畅体验：平滑的动画过渡效果
+- 🎭 动画效果：使用 tw-animate-css 提供丰富的动画效果
 
 ## 技术栈
 
 - Frontend:
-  - Next.js 14
-  - React + TypeScript
-  - Tailwind CSS
-  - Shadcn/ui
+  - Next.js 15.2.4
+  - React 19
+  - TypeScript
+  - Tailwind CSS 4
+  - Shadcn/ui (基于 Radix UI)
   - Lucide Icons
+  - React Query
+  - i18next
 
 ## 开发环境设置
 
@@ -44,6 +48,7 @@ npm run dev
 - 支持发送和接收消息
 - 消息历史记录显示
 - 新建聊天功能
+- 流畅的动画过渡效果
 
 ### 翻译工具
 - 自动语言检测
@@ -55,6 +60,7 @@ npm run dev
 - 支持原文/译文切换显示
 - 自动截断过长内容
 - 展开/收起功能
+- 优雅的动画效果
 
 ## 使用说明
 
@@ -76,4 +82,5 @@ NEXT_PUBLIC_DIFY_API_URL=your_api_url
 
 - 首次使用需要配置 Dify API 密钥
 - 建议使用现代浏览器以获得最佳体验
-- 翻译功能默认隐藏，可通过界面按钮开启 
+- 翻译功能默认隐藏，可通过界面按钮开启
+- 项目使用最新的 React 19 和 Next.js 15，确保您的开发环境兼容这些版本 
