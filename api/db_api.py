@@ -71,4 +71,51 @@ def insert_ticket():
         return jsonify({"error": str(err)}), 500
     finally:
         cursor.close()
+        connection.close()
+
+@db_api.route('/insert_ticket_workflow', methods=['POST'])
+def insert_ticket_workflow():
+    # 从URL参数获取数据
+    workflow_id = request.args.get('workflow_id')
+    step_number = request.args.get('step_number')
+    ai_message = request.args.get('ai_message')
+    customer_message = request.args.get('customer_message')
+    conversation_id = request.args.get('conversation_id')
+    user_id = request.args.get('user_id')
+
+    # 验证必需参数
+    if not all([workflow_id, step_number, conversation_id, user_id]):
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # 数据库连接
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    try:
+        # 插入数据
+        insert_query = """
+        INSERT INTO tickets_workflows (
+            workflow_id, 
+            step_number, 
+            ai_message, 
+            customer_message, 
+            conversation_id, 
+            user_id
+        )
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            workflow_id,
+            step_number,
+            ai_message,
+            customer_message,
+            conversation_id,
+            user_id
+        ))
+        connection.commit()
+        return jsonify({"message": "Ticket workflow inserted successfully"}), 201
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        cursor.close()
         connection.close() 
