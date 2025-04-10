@@ -12,6 +12,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   translated?: string;
+  isLoading?: boolean;
 }
 
 export default function Home() {
@@ -33,6 +34,14 @@ export default function Home() {
     };
     setMessages(prev => [...prev, userMessage]);
 
+    // 添加AI助手的加载消息
+    const loadingMessage: Message = {
+      role: 'assistant',
+      content: '正在思考中...',
+      isLoading: true
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+
     try {
       // 调用Dify API获取回复
       const response = await sendMessageToDify(`【工单】${content}`, conversationId);
@@ -40,20 +49,24 @@ export default function Home() {
       // 保存会话ID
       setConversationId(response.conversation_id);
 
-      // 添加AI助手回复
-      const aiResponse: Message = {
-        role: 'assistant',
-        content: response.answer
-      };
-      setMessages(prev => [...prev, aiResponse]);
+      // 更新AI助手消息
+      setMessages(prev => prev.map((msg, index) => 
+        index === prev.length - 1 ? {
+          role: 'assistant',
+          content: response.answer,
+          isLoading: false
+        } : msg
+      ));
     } catch (error) {
       console.error('Error getting response from Dify:', error);
-      // 添加错误消息
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: '抱歉，我遇到了一些问题。请稍后再试。'
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      // 更新错误消息
+      setMessages(prev => prev.map((msg, index) => 
+        index === prev.length - 1 ? {
+          role: 'assistant',
+          content: '抱歉，我遇到了一些问题。请稍后再试。',
+          isLoading: false
+        } : msg
+      ));
     }
   };
 
@@ -63,16 +76,29 @@ export default function Home() {
       index === 0 ? { ...msg, translated: content } : msg
     ));
 
+    // 添加AI助手的加载消息
+    const loadingMessage: Message = {
+      role: 'assistant',
+      content: '正在翻译中...',
+      isLoading: true
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+
     try {
       // 调用Dify API获取翻译
       const response = await sendMessageToDify(`【翻译】${content}`, conversationId);
       
-      // 更新翻译结果
-      setMessages(prev => prev.map((msg, index) => 
-        index === 0 ? { ...msg, translated: response.answer } : msg
-      ));
+      // 更新翻译结果和移除加载消息
+      setMessages(prev => {
+        const newMessages = prev.slice(0, -1); // 移除加载消息
+        return newMessages.map((msg, index) => 
+          index === 0 ? { ...msg, translated: response.answer } : msg
+        );
+      });
     } catch (error) {
       console.error('Error getting translation from Dify:', error);
+      // 移除加载消息
+      setMessages(prev => prev.slice(0, -1));
     }
   };
 
