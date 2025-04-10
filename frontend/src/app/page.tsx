@@ -6,6 +6,7 @@ import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Languages } from 'lucide-react';
+import { sendMessageToDify } from '@/services/dify';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,44 +18,68 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [detectedLanguage, setDetectedLanguage] = useState<string>();
   const [showTranslation, setShowTranslation] = useState(false);
+  const [conversationId, setConversationId] = useState<string>();
 
   const handleSendMessage = async (content: string) => {
     // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
     const detectedLang = content.match(/[\u4e00-\u9fa5]/) ? 'zh' : 'en';
     setDetectedLanguage(detectedLang);
 
-    // 添加用户消息，保持原始格式
+    // 添加用户消息
     const userMessage: Message = {
       role: 'user',
       content: content,
-      // 如果是第一条消息，自动添加翻译，保持原始格式
       translated: messages.length === 0 ? content : undefined
     };
     setMessages(prev => [...prev, userMessage]);
 
-    // 模拟AI助手回复
-    setTimeout(() => {
+    try {
+      // 调用Dify API获取回复
+      const response = await sendMessageToDify(`【工单】${content}`, conversationId);
+      
+      // 保存会话ID
+      setConversationId(response.conversation_id);
+
+      // 添加AI助手回复
       const aiResponse: Message = {
         role: 'assistant',
-        content: '您好！我是AI客服助手。我已经收到您的工单内容，请问还有什么可以帮助您的吗？'
+        content: response.answer
       };
       setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
-
-    // TODO: 在实际应用中，这里需要调用Dify API获取真实的AI回复
+    } catch (error) {
+      console.error('Error getting response from Dify:', error);
+      // 添加错误消息
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: '抱歉，我遇到了一些问题。请稍后再试。'
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   const handleTranslate = async (content: string) => {
-    // 更新第一条消息的翻译，保持原始格式
+    // 更新第一条消息的翻译
     setMessages(prev => prev.map((msg, index) => 
       index === 0 ? { ...msg, translated: content } : msg
     ));
-    // TODO: 在实际应用中，这里需要调用翻译API
+
+    try {
+      // 调用Dify API获取翻译
+      const response = await sendMessageToDify(`【翻译】${content}`, conversationId);
+      
+      // 更新翻译结果
+      setMessages(prev => prev.map((msg, index) => 
+        index === 0 ? { ...msg, translated: response.answer } : msg
+      ));
+    } catch (error) {
+      console.error('Error getting translation from Dify:', error);
+    }
   };
 
   const handleNewChat = () => {
     setMessages([]);
     setDetectedLanguage(undefined);
+    setConversationId(undefined);
     // 重置翻译工具的状态
     if (translationToolRef.current) {
       translationToolRef.current.resetTool();
@@ -82,7 +107,7 @@ export default function Home() {
                 onClick={() => setShowTranslation(!showTranslation)}
               >
                 <Languages className={`w-4 h-4 ${showTranslation ? 'text-gray-600' : 'text-gray-400'}`} />
-                <span>翻译工具</span>
+                <span>{showTranslation ? '隐藏翻译' : '显示翻译'}</span>
               </Button>
               <Button 
                 variant="ghost" 
