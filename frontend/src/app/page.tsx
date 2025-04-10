@@ -20,6 +20,10 @@ export default function Home() {
   const [detectedLanguage, setDetectedLanguage] = useState<string>();
   const [showTranslation, setShowTranslation] = useState(false);
   const [conversationId, setConversationId] = useState<string>();
+  const [ticketContent, setTicketContent] = useState<{
+    original?: string;
+    translated?: string;
+  }>({});
 
   const handleSendMessage = async (content: string) => {
     // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
@@ -33,6 +37,14 @@ export default function Home() {
       translated: messages.length === 0 ? content : undefined
     };
     setMessages(prev => [...prev, userMessage]);
+
+    // 如果是第一条消息，设置工单内容为加载状态
+    if (messages.length === 0) {
+      setTicketContent({
+        original: content,
+        translated: '正在思考中...'
+      });
+    }
 
     // 添加AI助手的加载消息
     const loadingMessage: Message = {
@@ -48,6 +60,22 @@ export default function Home() {
       
       // 保存会话ID
       setConversationId(response.conversation_id);
+
+      // 如果是第一条消息，立即更新工单内容
+      if (messages.length === 0) {
+        console.log('Dify response variables:', response.variables); // 添加日志
+        const originalQuery = response.variables?.original_customer_query;
+        const translatedQuery = response.variables?.original_customer_query_cn;
+        
+        setTicketContent({
+          original: originalQuery || content,
+          translated: translatedQuery || content
+        });
+        console.log('Updated ticket content:', {
+          original: originalQuery || content,
+          translated: translatedQuery || content
+        });
+      }
 
       // 更新AI助手消息
       setMessages(prev => prev.map((msg, index) => 
@@ -67,6 +95,14 @@ export default function Home() {
           isLoading: false
         } : msg
       ));
+
+      // 如果是第一条消息且发生错误，恢复原始内容
+      if (messages.length === 0) {
+        setTicketContent({
+          original: content,
+          translated: content
+        });
+      }
     }
   };
 
@@ -106,6 +142,7 @@ export default function Home() {
     setMessages([]);
     setDetectedLanguage(undefined);
     setConversationId(undefined);
+    setTicketContent({});
     // 重置翻译工具的状态
     if (translationToolRef.current) {
       translationToolRef.current.resetTool();
@@ -114,8 +151,6 @@ export default function Home() {
 
   // 创建一个ref来引用翻译工具组件
   const translationToolRef = useRef<{ resetTool: () => void }>(null);
-
-  const firstMessage = messages.length > 0 ? messages[0] : null;
 
   return (
     <main className="h-screen flex bg-gray-50 relative overflow-hidden">
@@ -150,8 +185,8 @@ export default function Home() {
         
         <div className="flex-none bg-white border-b border-gray-100">
           <TicketContent 
-            originalContent={firstMessage?.content}
-            translatedContent={firstMessage?.translated}
+            originalContent={ticketContent.original}
+            translatedContent={ticketContent.translated}
           />
         </div>
 

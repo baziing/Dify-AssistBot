@@ -11,6 +11,10 @@ interface DifyMessage {
 interface DifyResponse {
   answer: string;
   conversation_id: string;
+  variables?: {
+    original_customer_query?: string;
+    original_customer_query_cn?: string;
+  };
 }
 
 export async function sendMessageToDify(
@@ -18,6 +22,8 @@ export async function sendMessageToDify(
   conversationId?: string
 ): Promise<DifyResponse> {
   try {
+    console.log('Sending message to Dify:', { message, conversationId });
+
     const response = await axios.post(
       `${DIFY_API_ENDPOINT}/chat-messages`,
       {
@@ -34,9 +40,12 @@ export async function sendMessageToDify(
       }
     );
 
+    console.log('Dify response:', response.data);
+
     return {
       answer: response.data.answer,
       conversation_id: response.data.conversation_id,
+      variables: response.data.variables
     };
   } catch (error) {
     console.error('Error sending message to Dify:', error);
