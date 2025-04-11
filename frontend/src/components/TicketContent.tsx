@@ -11,8 +11,14 @@ export function TicketContent({ originalContent, translatedContent }: TicketCont
   const [showOriginal, setShowOriginal] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // 处理原始内容，移除"【工单】"前缀
+  const processOriginalContent = (content?: string) => {
+    if (!content) return '';
+    return content.replace(/^【工单】/, '');
+  };
+
   const hasContent = Boolean(originalContent || translatedContent);
-  const currentContent = showOriginal ? originalContent : translatedContent;
+  const currentContent = showOriginal ? processOriginalContent(originalContent) : translatedContent;
   const hasMoreContent = currentContent && (currentContent.split('\n').length > 3 || currentContent.length > 200);
 
   return (
