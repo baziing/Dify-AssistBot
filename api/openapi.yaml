@@ -1,0 +1,226 @@
+openapi: 3.0.0
+info:
+  title: 工单 API
+  version: 1.0.0
+servers:
+  - url: http://192.168.111.225:5003
+paths:
+  /api/get_ticket_by_workflow_id:
+    get:
+      summary: 根据工作流ID获取工单
+      description: 从数据库获取指定工作流ID的工单信息
+      parameters:
+        - name: workflow_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 工作流ID
+      responses:
+        '200':
+          description: 成功获取工单信息
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflow_id:
+                    type: string
+                    description: 工作流ID
+                  conversation_id:
+                    type: string
+                    description: 对话ID
+                  ticket_content_original:
+                    type: string
+                    description: 工单原文
+                  ticket_content_translated:
+                    type: string
+                    description: 翻译后的中文内容
+                  language:
+                    type: string
+                    description: 语言
+                  user_id:
+                    type: string
+                    description: 用户ID
+        '404':
+          description: 工单未找到
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Ticket not found"
+        '400':
+          description: 缺少必需参数
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Missing workflow_id parameter"
+        '500':
+          description: 数据库错误
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Database error message"
+
+  /api/insert_ticket:
+    post:
+      summary: 插入工单
+      description: 插入新的工单记录到数据库
+      parameters:
+        - name: workflow_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 工作流ID
+        - name: conversation_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 对话ID
+        - name: ticket_content_original
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 工单原文
+        - name: ticket_content_translated
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 翻译后的中文内容
+        - name: language
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 语言
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 用户ID
+      responses:
+        '201':
+          description: 成功插入工单
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ticket inserted successfully"
+        '400':
+          description: 缺少必需参数
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Missing required parameters"
+        '500':
+          description: 数据库错误
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Database error message"
+
+  /api/insert_ticket_workflow:
+    post:
+      summary: 插入工单工作流
+      description: 插入新的工单工作流记录到数据库
+      parameters:
+        - name: workflow_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 工作流ID
+        - name: step_number
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 步骤编号
+        - name: ai_message
+          in: query
+          required: false
+          schema:
+            type: string
+          description: AI消息
+        - name: ai_message_translated
+          in: query
+          required: false
+          schema:
+            type: string
+          description: AI消息翻译
+        - name: customer_message
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 客服消息
+        - name: conversation_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 对话ID
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 用户ID
+      responses:
+        '201':
+          description: 成功插入工单工作流
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ticket workflow inserted successfully"
+        '400':
+          description: 缺少必需参数
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Missing required parameters"
+        '500':
+          description: 数据库错误
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Database error message" 

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Languages } from 'lucide-react';
+import { PlusCircle, Languages, Search } from 'lucide-react';
 import { sendMessageToDify } from '@/services/dify';
+import { getTicketByWorkflowId, insertTicket, insertTicketWorkflow } from '@/services/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -24,6 +25,9 @@ export default function Home() {
     original?: string;
     translated?: string;
   }>({});
+  const [workflowId, setWorkflowId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSendMessage = async (content: string) => {
     // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
@@ -61,22 +65,6 @@ export default function Home() {
       // 保存会话ID
       setConversationId(response.conversation_id);
 
-      // 如果是第一条消息，立即更新工单内容
-      if (messages.length === 0) {
-        console.log('Dify response variables:', response.variables); // 添加日志
-        const originalQuery = response.variables?.original_customer_query;
-        const translatedQuery = response.variables?.original_customer_query_cn;
-        
-        setTicketContent({
-          original: originalQuery || content,
-          translated: translatedQuery || content
-        });
-        console.log('Updated ticket content:', {
-          original: originalQuery || content,
-          translated: translatedQuery || content
-        });
-      }
-
       // 更新AI助手消息
       setMessages(prev => prev.map((msg, index) => 
         index === prev.length - 1 ? {
@@ -85,6 +73,76 @@ export default function Home() {
           isLoading: false
         } : msg
       ));
+
+      // 如果是第一条消息，尝试从数据库中获取工单信息
+      if (messages.length === 0) {
+        try {
+          // 从AI回复中提取工作流ID（假设AI回复中包含工作流ID）
+          const extractedWorkflowId = extractWorkflowIdFromResponse(response.answer);
+          console.log('提取的工作流ID:', extractedWorkflowId);
+          
+          if (extractedWorkflowId) {
+            setWorkflowId(extractedWorkflowId);
+            
+            // 从数据库获取工单信息
+            console.log('正在查询工单信息，工作流ID:', extractedWorkflowId);
+            const ticket = await getTicketByWorkflowId(extractedWorkflowId);
+            console.log('查询到的工单信息:', ticket);
+            
+            // 更新工单内容
+            setTicketContent({
+              original: ticket.ticket_content_original,
+              translated: ticket.ticket_content_translated
+            });
+            
+            // 设置检测到的语言
+            setDetectedLanguage(ticket.language);
+          } else {
+            // 如果没有提取到工作流ID，创建新的工单
+            console.log('未提取到工作流ID，创建新工单');
+            const newWorkflowId = generateWorkflowId(); // 生成新的工作流ID
+            setWorkflowId(newWorkflowId);
+
+            // 创建新工单
+            await insertTicket({
+              workflow_id: newWorkflowId,
+              conversation_id: response.conversation_id,
+              ticket_content_original: content,
+              ticket_content_translated: content, // 这里可以添加翻译逻辑
+              language: detectedLang,
+              user_id: 'test_user_456' // 这里应该使用实际的用户ID
+            });
+
+            setTicketContent({
+              original: content,
+              translated: content // 这里可以添加翻译逻辑
+            });
+          }
+        } catch (error) {
+          console.error('Error handling ticket:', error);
+          // 如果出错，使用原始内容
+          setTicketContent({
+            original: content,
+            translated: content
+          });
+        }
+      }
+
+      // 保存工单工作流记录
+      if (workflowId) {
+        try {
+          await insertTicketWorkflow({
+            workflow_id: workflowId,
+            step_number: (messages.length / 2 + 1).toString(),
+            ai_message: response.answer,
+            customer_message: content,
+            conversation_id: response.conversation_id,
+            user_id: 'test_user_456' // 这里应该使用实际的用户ID
+          });
+        } catch (error) {
+          console.error('Error saving ticket workflow:', error);
+        }
+      }
     } catch (error) {
       console.error('Error getting response from Dify:', error);
       // 更新错误消息
@@ -104,6 +162,19 @@ export default function Home() {
         });
       }
     }
+  };
+
+  // 生成工作流ID的辅助函数
+  const generateWorkflowId = () => {
+    return 'wf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  };
+
+  // 从AI回复中提取工作流ID
+  const extractWorkflowIdFromResponse = (response: string): string | null => {
+    // 这里需要根据实际情况调整提取逻辑
+    // 例如，如果AI回复中包含"工作流ID: 123456"这样的格式
+    const match = response.match(/工作流ID:\s*(\w+)/i);
+    return match ? match[1] : null;
   };
 
   const handleTranslate = async (content: string) => {
@@ -143,6 +214,8 @@ export default function Home() {
     setDetectedLanguage(undefined);
     setConversationId(undefined);
     setTicketContent({});
+    setWorkflowId('');
+    setError(null);
     // 重置翻译工具的状态
     if (translationToolRef.current) {
       translationToolRef.current.resetTool();
