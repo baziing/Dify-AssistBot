@@ -7,7 +7,7 @@ import { TranslationTool } from '@/components/TranslationTool';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Languages, Search } from 'lucide-react';
 import { sendMessageToDify } from '@/services/dify';
-import { getTicketByWorkflowId, insertTicket, insertTicketWorkflow } from '@/services/api';
+import { getTicketByWorkflowId, insertTicket, insertTicketWorkflow, getTicketByConversationId } from '@/services/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -77,30 +77,25 @@ export default function Home() {
       // 如果是第一条消息，尝试从数据库中获取工单信息
       if (messages.length === 0) {
         try {
-          // 从AI回复中提取工作流ID（假设AI回复中包含工作流ID）
-          const extractedWorkflowId = extractWorkflowIdFromResponse(response.answer);
-          console.log('提取的工作流ID:', extractedWorkflowId);
-          
-          if (extractedWorkflowId) {
-            setWorkflowId(extractedWorkflowId);
-            
-            // 从数据库获取工单信息
-            console.log('正在查询工单信息，工作流ID:', extractedWorkflowId);
-            const ticket = await getTicketByWorkflowId(extractedWorkflowId);
-            console.log('查询到的工单信息:', ticket);
-            
-            // 更新工单内容
+          // 通过conversation_id获取工单信息
+          console.log('正在通过会话ID获取工单信息:', response.conversation_id);
+          const ticket = await getTicketByConversationId(response.conversation_id);
+          console.log('获取到的工单信息:', ticket);
+
+          if (ticket) {
+            // 更新工单内容为翻译后的中文
             setTicketContent({
               original: ticket.ticket_content_original,
               translated: ticket.ticket_content_translated
             });
             
-            // 设置检测到的语言
+            // 设置工作流ID和语言
+            setWorkflowId(ticket.workflow_id);
             setDetectedLanguage(ticket.language);
           } else {
-            // 如果没有提取到工作流ID，创建新的工单
-            console.log('未提取到工作流ID，创建新工单');
-            const newWorkflowId = generateWorkflowId(); // 生成新的工作流ID
+            // 如果没有找到工单，创建新的工单
+            console.log('未找到工单，创建新工单');
+            const newWorkflowId = generateWorkflowId();
             setWorkflowId(newWorkflowId);
 
             // 创建新工单
@@ -108,19 +103,18 @@ export default function Home() {
               workflow_id: newWorkflowId,
               conversation_id: response.conversation_id,
               ticket_content_original: content,
-              ticket_content_translated: content, // 这里可以添加翻译逻辑
+              ticket_content_translated: content,
               language: detectedLang,
-              user_id: 'test_user_456' // 这里应该使用实际的用户ID
+              user_id: 'test_user_456'
             });
 
             setTicketContent({
               original: content,
-              translated: content // 这里可以添加翻译逻辑
+              translated: content
             });
           }
         } catch (error) {
           console.error('Error handling ticket:', error);
-          // 如果出错，使用原始内容
           setTicketContent({
             original: content,
             translated: content
@@ -135,9 +129,10 @@ export default function Home() {
             workflow_id: workflowId,
             step_number: (messages.length / 2 + 1).toString(),
             ai_message: response.answer,
+            ai_message_translated: response.answer, // 这里可以添加AI回复的翻译
             customer_message: content,
             conversation_id: response.conversation_id,
-            user_id: 'test_user_456' // 这里应该使用实际的用户ID
+            user_id: 'test_user_456'
           });
         } catch (error) {
           console.error('Error saving ticket workflow:', error);
@@ -145,7 +140,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error getting response from Dify:', error);
-      // 更新错误消息
       setMessages(prev => prev.map((msg, index) => 
         index === prev.length - 1 ? {
           role: 'assistant',
@@ -154,7 +148,6 @@ export default function Home() {
         } : msg
       ));
 
-      // 如果是第一条消息且发生错误，恢复原始内容
       if (messages.length === 0) {
         setTicketContent({
           original: content,

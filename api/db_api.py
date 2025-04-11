@@ -68,6 +68,45 @@ def get_ticket_by_workflow_id():
         cursor.close()
         connection.close()
 
+@db_api.route('/get_ticket_by_conversation_id', methods=['GET'])
+def get_ticket_by_conversation_id():
+    # 从URL参数获取conversation_id
+    conversation_id = request.args.get('conversation_id')
+
+    # 验证必需参数
+    if not conversation_id:
+        return jsonify({"error": "Missing conversation_id parameter"}), 400
+
+    # 数据库连接
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)  # 使用字典游标，方便返回JSON
+
+    try:
+        # 查询数据
+        query = """
+        SELECT 
+            workflow_id,
+            conversation_id,
+            ticket_content_original,
+            ticket_content_translated,
+            language,
+            user_id
+        FROM tickets
+        WHERE conversation_id = %s
+        """
+        cursor.execute(query, (conversation_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({"error": "Ticket not found"}), 404
+            
+        return jsonify(result), 200
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
 @db_api.route('/insert_ticket', methods=['POST'])
 def insert_ticket():
     # 从URL参数获取数据
