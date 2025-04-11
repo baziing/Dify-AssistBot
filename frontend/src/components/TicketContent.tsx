@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronUp, Globe2 } from 'lucide-react';
+import { getLanguageDisplay } from '@/config/languages';
 
 interface TicketContentProps {
   originalContent?: string;
   translatedContent?: string;
+  language?: string;
 }
 
-export function TicketContent({ originalContent, translatedContent }: TicketContentProps) {
+export function TicketContent({ originalContent, translatedContent, language }: TicketContentProps) {
   const [showOriginal, setShowOriginal] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -25,11 +27,19 @@ export function TicketContent({ originalContent, translatedContent }: TicketCont
     <div className="bg-white flex-none">
       <div className="max-w-3xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
-              <MessageSquare className="w-5 h-5 text-gray-500" />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
+                <MessageSquare className="w-5 h-5 text-gray-500" />
+              </div>
+              <h2 className="text-sm font-medium text-gray-700">工单内容</h2>
             </div>
-            <h2 className="text-sm font-medium text-gray-700">工单内容</h2>
+            {language && (
+              <div className="flex items-center gap-1 text-sm text-gray-500">
+                <Globe2 className="w-4 h-4" />
+                <span>{getLanguageDisplay(language)}</span>
+              </div>
+            )}
           </div>
           {hasContent && (
             <Button

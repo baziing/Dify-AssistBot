@@ -30,10 +30,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSendMessage = async (content: string) => {
-    // 检测语言（这里使用模拟数据，实际应用中需要调用语言检测API）
-    const detectedLang = content.match(/[\u4e00-\u9fa5]/) ? 'zh' : 'en';
-    setDetectedLanguage(detectedLang);
-
     // 添加用户消息
     const userMessage: Message = {
       role: 'user',
@@ -83,13 +79,13 @@ export default function Home() {
           console.log('获取到的工单信息:', ticket);
 
           if (ticket) {
-            // 更新工单内容为翻译后的中文
+            // 更新工单内容和语言信息
             setTicketContent({
               original: ticket.ticket_content_original,
               translated: ticket.ticket_content_translated
             });
             
-            // 设置工作流ID和语言
+            // 设置工作流ID和语言（使用数据库中的语言信息）
             setWorkflowId(ticket.workflow_id);
             setDetectedLanguage(ticket.language);
           } else {
@@ -104,7 +100,7 @@ export default function Home() {
               conversation_id: response.conversation_id,
               ticket_content_original: content,
               ticket_content_translated: content,
-              language: detectedLang,
+              language: '', // 不设置默认语言
               user_id: 'test_user_456'
             });
 
@@ -112,6 +108,7 @@ export default function Home() {
               original: content,
               translated: content
             });
+            setDetectedLanguage(undefined); // 设置为 undefined，表示未知语言
           }
         } catch (error) {
           console.error('Error handling ticket:', error);
@@ -253,6 +250,7 @@ export default function Home() {
           <TicketContent 
             originalContent={ticketContent.original}
             translatedContent={ticketContent.translated}
+            language={detectedLanguage}
           />
         </div>
 
