@@ -4,16 +4,25 @@ import { useState, useRef, useEffect } from 'react';
 import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
+import { TranslationMessage } from '@/components/TranslationMessage';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Languages, Search } from 'lucide-react';
 import { sendMessageToDify } from '@/services/dify';
-import { getTicketByWorkflowId, insertTicket, insertTicketWorkflow, getTicketByConversationId } from '@/services/api';
+import { 
+  getTicketByWorkflowId, 
+  insertTicket, 
+  insertTicketWorkflow, 
+  getTicketByConversationId,
+  getWorkflowTranslation 
+} from '@/services/api';
+import { generateWorkflowId as generateUUID } from '@/utils/workflow';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
   translated?: string;
   isLoading?: boolean;
+  stepNumber?: string;
 }
 
 export default function Home() {
@@ -30,11 +39,16 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSendMessage = async (content: string) => {
+    // 计算当前步骤号，从 0 开始
+    const currentStepNumber = messages.length === 0 ? '0' : 
+      Math.floor(messages.length / 2).toString();
+
     // 添加用户消息
     const userMessage: Message = {
       role: 'user',
       content: content,
-      translated: messages.length === 0 ? content : undefined
+      translated: messages.length === 0 ? content : undefined,
+      stepNumber: currentStepNumber
     };
     setMessages(prev => [...prev, userMessage]);
 
@@ -50,7 +64,8 @@ export default function Home() {
     const loadingMessage: Message = {
       role: 'assistant',
       content: '正在思考中...',
-      isLoading: true
+      isLoading: true,
+      stepNumber: currentStepNumber
     };
     setMessages(prev => [...prev, loadingMessage]);
 
@@ -66,56 +81,34 @@ export default function Home() {
         index === prev.length - 1 ? {
           role: 'assistant',
           content: response.answer,
-          isLoading: false
+          isLoading: false,
+          stepNumber: currentStepNumber
         } : msg
       ));
 
-      // 如果是第一条消息，尝试从数据库中获取工单信息
+      // 如果是第一条消息，更新工单内容
       if (messages.length === 0) {
+        setTicketContent({
+          original: content,
+          translated: response.answer
+        });
+
+        // 保存工单信息
+        const newWorkflowId = generateUUID();
+        setWorkflowId(newWorkflowId);
+
         try {
-          // 通过conversation_id获取工单信息
-          console.log('正在通过会话ID获取工单信息:', response.conversation_id);
-          const ticket = await getTicketByConversationId(response.conversation_id);
-          console.log('获取到的工单信息:', ticket);
-
-          if (ticket) {
-            // 更新工单内容和语言信息
-            setTicketContent({
-              original: ticket.ticket_content_original,
-              translated: ticket.ticket_content_translated
-            });
-            
-            // 设置工作流ID和语言（使用数据库中的语言信息）
-            setWorkflowId(ticket.workflow_id);
-            setDetectedLanguage(ticket.language);
-          } else {
-            // 如果没有找到工单，创建新的工单
-            console.log('未找到工单，创建新工单');
-            const newWorkflowId = generateWorkflowId();
-            setWorkflowId(newWorkflowId);
-
-            // 创建新工单
-            await insertTicket({
-              workflow_id: newWorkflowId,
-              conversation_id: response.conversation_id,
-              ticket_content_original: content,
-              ticket_content_translated: content,
-              language: '', // 不设置默认语言
-              user_id: 'test_user_456'
-            });
-
-            setTicketContent({
-              original: content,
-              translated: content
-            });
-            setDetectedLanguage(undefined); // 设置为 undefined，表示未知语言
-          }
-        } catch (error) {
-          console.error('Error handling ticket:', error);
-          setTicketContent({
-            original: content,
-            translated: content
+          // 创建新工单
+          await insertTicket({
+            workflow_id: newWorkflowId,
+            conversation_id: response.conversation_id,
+            ticket_content_original: content,
+            ticket_content_translated: content,
+            language: '',
+            user_id: 'test_user_456'
           });
+        } catch (error) {
+          console.error('Error creating ticket:', error);
         }
       }
 
@@ -124,9 +117,9 @@ export default function Home() {
         try {
           await insertTicketWorkflow({
             workflow_id: workflowId,
-            step_number: (messages.length / 2 + 1).toString(),
+            step_number: currentStepNumber,
             ai_message: response.answer,
-            ai_message_translated: response.answer, // 这里可以添加AI回复的翻译
+            ai_message_translated: response.answer,
             customer_message: content,
             conversation_id: response.conversation_id,
             user_id: 'test_user_456'
@@ -136,27 +129,10 @@ export default function Home() {
         }
       }
     } catch (error) {
-      console.error('Error getting response from Dify:', error);
-      setMessages(prev => prev.map((msg, index) => 
-        index === prev.length - 1 ? {
-          role: 'assistant',
-          content: '抱歉，我遇到了一些问题。请稍后再试。',
-          isLoading: false
-        } : msg
-      ));
-
-      if (messages.length === 0) {
-        setTicketContent({
-          original: content,
-          translated: content
-        });
-      }
+      console.error('Error sending message to Dify:', error);
+      // 移除加载消息
+      setMessages(prev => prev.slice(0, -1));
     }
-  };
-
-  // 生成工作流ID的辅助函数
-  const generateWorkflowId = () => {
-    return 'wf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   };
 
   // 从AI回复中提取工作流ID
@@ -167,35 +143,65 @@ export default function Home() {
     return match ? match[1] : null;
   };
 
-  const handleTranslate = async (content: string) => {
-    // 更新第一条消息的翻译
-    setMessages(prev => prev.map((msg, index) => 
-      index === 0 ? { ...msg, translated: content } : msg
-    ));
+  const handleTranslate = async (content: string, messageIndex: number) => {
+    // 获取要翻译的消息的 stepNumber
+    const targetMessage = messages[messageIndex];
+    if (!targetMessage || !targetMessage.stepNumber) {
+      console.error('No step number found for message');
+      return;
+    }
 
     // 添加AI助手的加载消息
     const loadingMessage: Message = {
       role: 'assistant',
-      content: '正在翻译中...',
-      isLoading: true
+      content: '正在获取翻译...',
+      isLoading: true,
+      stepNumber: targetMessage.stepNumber
     };
     setMessages(prev => [...prev, loadingMessage]);
 
     try {
-      // 调用Dify API获取翻译
-      const response = await sendMessageToDify(`【翻译】${content}`, conversationId);
+      if (!conversationId) {
+        throw new Error('No conversation ID available');
+      }
+
+      // 从数据库获取翻译
+      const translation = await getWorkflowTranslation(conversationId, targetMessage.stepNumber);
       
-      // 更新翻译结果和移除加载消息
+      // 移除加载消息
       setMessages(prev => {
         const newMessages = prev.slice(0, -1); // 移除加载消息
-        return newMessages.map((msg, index) => 
-          index === 0 ? { ...msg, translated: response.answer } : msg
-        );
+        if (translation) {
+          // 如果找到了翻译，添加为新的消息，使用 TranslationMessage 组件
+          return [...newMessages, {
+            role: 'assistant',
+            content: JSON.stringify({
+              type: 'translation',
+              original: content,
+              translation: translation
+            }),
+            stepNumber: targetMessage.stepNumber
+          }];
+        } else {
+          // 如果没有找到翻译，显示错误消息
+          return [...newMessages, {
+            role: 'assistant',
+            content: '未找到对应的翻译内容。',
+            stepNumber: targetMessage.stepNumber
+          }];
+        }
       });
     } catch (error) {
-      console.error('Error getting translation from Dify:', error);
-      // 移除加载消息
-      setMessages(prev => prev.slice(0, -1));
+      console.error('Error getting translation:', error);
+      // 显示错误消息
+      setMessages(prev => {
+        const newMessages = prev.slice(0, -1); // 移除加载消息
+        return [...newMessages, {
+          role: 'assistant',
+          content: '获取翻译失败，请稍后重试。',
+          stepNumber: targetMessage.stepNumber
+        }];
+      });
     }
   };
 

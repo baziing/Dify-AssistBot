@@ -202,4 +202,41 @@ def insert_ticket_workflow():
         return jsonify({"error": str(err)}), 500
     finally:
         cursor.close()
+        connection.close()
+
+@db_api.route('/get_workflow_translation', methods=['GET'])
+def get_workflow_translation():
+    # 从URL参数获取conversation_id和step_number
+    conversation_id = request.args.get('conversation_id')
+    step_number = request.args.get('step_number')
+
+    # 验证必需参数
+    if not all([conversation_id, step_number]):
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # 数据库连接
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # 查询数据
+        query = """
+        SELECT ai_message_translated
+        FROM tickets_workflows
+        WHERE conversation_id = %s AND step_number = %s
+        """
+        cursor.execute(query, (conversation_id, step_number))
+        result = cursor.fetchone()
+        
+        # 确保所有结果都被读取
+        cursor.fetchall()  # 清空任何剩余的结果
+        
+        if not result:
+            return jsonify({"error": "Translation not found"}), 404
+            
+        return jsonify(result), 200
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        cursor.close()
         connection.close() 

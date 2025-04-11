@@ -56,6 +56,26 @@ export const getTicketByConversationId = async (conversationId: string): Promise
   }
 };
 
+// 根据会话ID和步骤号获取工作流翻译
+export const getWorkflowTranslation = async (conversationId: string, stepNumber: string): Promise<string> => {
+  try {
+    const response = await axios.get('/api/get_workflow_translation', {
+      params: {
+        conversation_id: conversationId,
+        step_number: stepNumber
+      }
+    });
+    // 检查响应是否存在且包含翻译内容
+    if (response.data && response.data.ai_message_translated) {
+      return response.data.ai_message_translated;
+    }
+    return '';
+  } catch (error) {
+    console.error('Error fetching workflow translation:', error);
+    return '';
+  }
+};
+
 // 插入工单
 export const insertTicket = async (ticket: Omit<Ticket, 'created_at' | 'updated_at'>) => {
   try {

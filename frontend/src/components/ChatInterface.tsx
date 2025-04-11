@@ -3,16 +3,19 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card } from './ui/card';
 import { Send, Bot, User } from 'lucide-react';
+import { TranslationMessage } from './TranslationMessage';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  isLoading?: boolean;
+  stepNumber?: string;
 }
 
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (content: string) => void;
-  onTranslate: (content: string) => void;
+  onTranslate: (content: string, messageIndex: number) => void;
 }
 
 export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInterfaceProps) {
@@ -58,19 +61,49 @@ export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInte
                   <span className="text-sm font-medium text-gray-700">
                     {message.role === 'assistant' ? 'AI助手' : '用户'}
                   </span>
-                  {message.role === 'assistant' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
-                      onClick={() => onTranslate(message.content)}
-                    >
-                      翻译
-                    </Button>
-                  )}
+                  {message.role === 'assistant' && (() => {
+                    try {
+                      // 尝试解析消息内容，如果是翻译消息则不显示翻译按钮
+                      JSON.parse(message.content);
+                      return null;
+                    } catch {
+                      // 如果解析失败，说明是普通消息，显示翻译按钮
+                      return (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
+                          onClick={() => onTranslate(message.content, index)}
+                        >
+                          翻译
+                        </Button>
+                      );
+                    }
+                  })()}
                 </div>
                 <div className="prose prose-sm max-w-none text-gray-600">
-                  {message.content}
+                  {(() => {
+                    try {
+                      // 尝试解析消息内容
+                      const parsedContent = JSON.parse(message.content);
+                      if (parsedContent.type === 'translation') {
+                        return (
+                          <TranslationMessage
+                            original={parsedContent.original}
+                            translation={parsedContent.translation}
+                          />
+                        );
+                      }
+                    } catch {
+                      // 如果解析失败，说明是普通消息
+                      return message.content;
+                    }
+                  })()}
+                  {message.isLoading && (
+                    <div className="mt-2 text-sm text-gray-500">
+                      <div className="animate-pulse">●●●</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
