@@ -76,6 +76,34 @@ export default function Home() {
       // 保存会话ID
       setConversationId(response.conversation_id);
 
+      // 如果是第一条消息，从数据库获取工单信息
+      if (messages.length === 0) {
+        try {
+          const ticket = await getTicketByConversationId(response.conversation_id);
+          if (ticket) {
+            setDetectedLanguage(ticket.language || 'unknown');
+            // 使用工单的翻译内容
+            setTicketContent({
+              original: ticket.ticket_content_original,
+              translated: ticket.ticket_content_translated
+            });
+          } else {
+            setDetectedLanguage('unknown');
+            setTicketContent({
+              original: content,
+              translated: content
+            });
+          }
+        } catch (error) {
+          console.error('Error getting ticket:', error);
+          setDetectedLanguage('unknown');
+          setTicketContent({
+            original: content,
+            translated: content
+          });
+        }
+      }
+
       // 更新AI助手消息
       setMessages(prev => prev.map((msg, index) => 
         index === prev.length - 1 ? {
@@ -86,13 +114,8 @@ export default function Home() {
         } : msg
       ));
 
-      // 如果是第一条消息，更新工单内容
+      // 如果是第一条消息，保存工单信息
       if (messages.length === 0) {
-        setTicketContent({
-          original: content,
-          translated: response.answer
-        });
-
         // 保存工单信息
         const newWorkflowId = generateUUID();
         setWorkflowId(newWorkflowId);
@@ -104,7 +127,7 @@ export default function Home() {
             conversation_id: response.conversation_id,
             ticket_content_original: content,
             ticket_content_translated: content,
-            language: '',
+            language: detectedLanguage || 'unknown',
             user_id: 'test_user_456'
           });
         } catch (error) {
