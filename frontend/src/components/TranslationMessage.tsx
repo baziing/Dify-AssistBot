@@ -21,12 +21,12 @@ export function TranslationMessage({ original, translation }: TranslationMessage
       
       {isExpanded && (
         <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-600 font-mono">
-          {original}
+          <pre className="font-mono text-inherit whitespace-pre-wrap">{original}</pre>
         </div>
       )}
       
       <div className="text-gray-900">
-        {translation}
+        <pre className="font-sans text-inherit whitespace-pre-wrap">{translation}</pre>
       </div>
     </div>
   );

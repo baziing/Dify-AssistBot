@@ -96,7 +96,7 @@ export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInte
                       }
                     } catch {
                       // 如果解析失败，说明是普通消息
-                      return message.content;
+                      return <pre className="font-sans text-inherit whitespace-pre-wrap">{message.content}</pre>;
                     }
                   })()}
                   {message.isLoading && (
