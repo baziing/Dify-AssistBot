@@ -39,21 +39,28 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSendMessage = async (content: string) => {
+    console.log('开始处理消息时 messages.length:', messages.length);
+    
+    // 在开始时就判断是否是第一条消息
+    const isFirstMessage = messages.length === 0;
+    
     // 计算当前步骤号，从 0 开始
-    const currentStepNumber = messages.length === 0 ? '0' : 
+    const currentStepNumber = isFirstMessage ? '0' : 
       Math.floor(messages.length / 2).toString();
-
+    
     // 添加用户消息
     const userMessage: Message = {
       role: 'user',
       content: content,
-      translated: messages.length === 0 ? content : undefined,
+      translated: isFirstMessage ? content : undefined,
       stepNumber: currentStepNumber
     };
     setMessages(prev => [...prev, userMessage]);
+    console.log('添加用户消息后 messages.length:', messages.length + 1);
 
     // 如果是第一条消息，设置工单内容为加载状态
-    if (messages.length === 0) {
+    if (isFirstMessage) {
+      console.log('检测到第一条消息');
       setTicketContent({
         original: content,
         translated: '正在思考中...'
@@ -68,21 +75,22 @@ export default function Home() {
       stepNumber: currentStepNumber
     };
     setMessages(prev => [...prev, loadingMessage]);
+    console.log('添加AI加载消息后 messages.length:', messages.length + 2);
 
     try {
-      // 调用Dify API获取回复
+      // 调用Dify API获取回复，保留自动添加【工单】标记
       const response = await sendMessageToDify(`【工单】${content}`, conversationId);
       
       // 保存会话ID
       setConversationId(response.conversation_id);
 
       // 如果是第一条消息，从数据库获取工单信息
-      if (messages.length === 0) {
+      if (isFirstMessage) {
+        console.log('准备获取工单信息时');
         try {
           const ticket = await getTicketByConversationId(response.conversation_id);
           if (ticket) {
             setDetectedLanguage(ticket.language || 'unknown');
-            // 使用工单的翻译内容
             setTicketContent({
               original: ticket.ticket_content_original,
               translated: ticket.ticket_content_translated
@@ -115,7 +123,8 @@ export default function Home() {
       ));
 
       // 如果是第一条消息，保存工单信息
-      if (messages.length === 0) {
+      if (isFirstMessage) {
+        console.log('准备保存工单信息时');
         // 保存工单信息
         const newWorkflowId = generateUUID();
         setWorkflowId(newWorkflowId);
@@ -128,7 +137,7 @@ export default function Home() {
             ticket_content_original: content,
             ticket_content_translated: content,
             language: detectedLanguage || 'unknown',
-            user_id: 'test_user_456'
+            user_id: 'user'
           });
         } catch (error) {
           console.error('Error creating ticket:', error);
@@ -136,21 +145,22 @@ export default function Home() {
       }
 
       // 保存工单工作流记录
-      if (workflowId) {
-        try {
-          await insertTicketWorkflow({
-            workflow_id: workflowId,
-            step_number: currentStepNumber,
-            ai_message: response.answer,
-            ai_message_translated: response.answer,
-            customer_message: content,
-            conversation_id: response.conversation_id,
-            user_id: 'test_user_456'
-          });
-        } catch (error) {
-          console.error('Error saving ticket workflow:', error);
-        }
-      }
+      // if (workflowId) {
+      //   console.log('准备保存工作流记录时');
+      //   try {
+      //     await insertTicketWorkflow({
+      //       workflow_id: workflowId,
+      //       step_number: currentStepNumber,
+      //       ai_message: response.answer,
+      //       ai_message_translated: response.answer,
+      //       customer_message: content,
+      //       conversation_id: response.conversation_id,
+      //       user_id: 'user'
+      //     });
+      //   } catch (error) {
+      //     console.error('Error saving ticket workflow:', error);
+      //   }
+      // }
     } catch (error) {
       console.error('Error sending message to Dify:', error);
       // 移除加载消息
