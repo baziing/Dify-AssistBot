@@ -85,22 +85,11 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
     return (
       <div className="h-full flex flex-col bg-white">
         <div className="flex-none px-4 py-3 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
-                <Languages className="w-5 h-5 text-gray-500" />
-              </div>
-              <h2 className="text-sm font-medium text-gray-700">翻译工具</h2>
+          <div className="flex items-center">
+            <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
+              <Languages className="w-5 h-5 text-gray-500" />
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-              onClick={handleReset}
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>重置</span>
-            </Button>
+            <h2 className="text-sm font-medium text-gray-700 ml-2">翻译工具</h2>
           </div>
         </div>
         
