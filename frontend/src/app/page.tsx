@@ -78,7 +78,7 @@ export default function Home() {
     console.log('添加AI加载消息后 messages.length:', messages.length + 2);
 
     try {
-      const response = await sendMessageToDify(content, conversationId);
+      const response = await sendMessageToDify(`【工单】${content}`, conversationId);
       
       // 更新会话ID
       if (!conversationId && response.conversation_id) {
