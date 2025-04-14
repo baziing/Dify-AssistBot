@@ -104,7 +104,7 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
               placeholder="请输入要翻译的文本..."
-              className="h-[calc(25vh-40px)] resize-none"
+              className="h-[calc(35vh-40px)] resize-none"
             />
           </div>
           
@@ -132,7 +132,7 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
               value={translatedText}
               readOnly
               placeholder="翻译结果将显示在这里..."
-              className="h-[calc(25vh-40px)] resize-none bg-gray-50"
+              className="h-[calc(35vh-40px)] resize-none bg-gray-50"
             />
           </div>
         </div>
