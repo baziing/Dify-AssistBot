@@ -2,23 +2,28 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Languages, ArrowRight, RefreshCw, ArrowLeftRight } from 'lucide-react';
+import { sendMessageToDify } from '@/services/dify';
+import { getLanguageDisplay } from '@/config/languages';
 
 interface TranslationToolProps {
   detectedLanguage?: string;
   onReset: () => void;
+  conversationId?: string;
 }
 
 export const TranslationTool = forwardRef<{ resetTool: () => void }, TranslationToolProps>(
-  ({ detectedLanguage, onReset }, ref) => {
+  ({ detectedLanguage, onReset, conversationId }, ref) => {
     const [sourceText, setSourceText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
     const [sourceLanguage, setSourceLanguage] = useState(detectedLanguage || 'auto');
-    const [targetLanguage, setTargetLanguage] = useState(detectedLanguage === 'zh' ? 'en' : 'zh');
+    const [targetLanguage, setTargetLanguage] = useState('zh');
+    const [isTranslating, setIsTranslating] = useState(false);
 
     // 当检测到的语言变化时更新源语言
     useEffect(() => {
       if (detectedLanguage) {
         setSourceLanguage(detectedLanguage);
+        // 如果检测到的是中文，则目标语言设为英文，否则设为中文
         setTargetLanguage(detectedLanguage === 'zh' ? 'en' : 'zh');
       }
     }, [detectedLanguage]);
@@ -27,10 +32,27 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
     const handleTranslate = async () => {
       if (!sourceText.trim()) return;
       
-      // TODO: 在实际应用中，这里需要调用翻译API
-      // 这里使用模拟数据
-      const mockTranslation = sourceText;
-      setTranslatedText(mockTranslation);
+      setIsTranslating(true);
+      setTranslatedText('正在翻译...');
+      
+      try {
+        // 根据源语言和目标语言构建翻译请求
+        let translationPrefix;
+        if (targetLanguage === 'zh') {
+          // 如果目标语言是中文，则使用"翻译成中文"
+          translationPrefix = '【翻译成中文】';
+        } else {
+          // 如果目标语言不是中文，则使用"翻译成源语言"
+          translationPrefix = '【翻译成源语言】';
+        }
+        const response = await sendMessageToDify(`${translationPrefix}${sourceText}`, conversationId);
+        setTranslatedText(response.answer);
+      } catch (error) {
+        console.error('Translation error:', error);
+        setTranslatedText('翻译失败，请稍后重试');
+      } finally {
+        setIsTranslating(false);
+      }
     };
 
     // 切换语言
@@ -86,7 +108,7 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="text-xs font-medium text-gray-500">
-                源语言: {sourceLanguage === 'auto' ? '自动检测' : sourceLanguage === 'zh' ? '中文' : '英文'}
+                源语言: {sourceLanguage === 'auto' ? '自动检测' : getLanguageDisplay(sourceLanguage)}
               </div>
               <Button
                 variant="ghost"
@@ -111,16 +133,20 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
               size="icon"
               className="h-8 w-8 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
               onClick={handleTranslate}
-              disabled={!sourceText.trim()}
+              disabled={!sourceText.trim() || isTranslating}
               title="翻译"
             >
-              <ArrowRight className="h-4 w-4" />
+              {isTranslating ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="h-4 w-4" />
+              )}
             </Button>
           </div>
           
           <div>
             <div className="text-xs font-medium text-gray-500 mb-2">
-              目标语言: {targetLanguage === 'zh' ? '中文' : '英文'}
+              目标语言: {getLanguageDisplay(targetLanguage)}
             </div>
             <Textarea
               value={translatedText}

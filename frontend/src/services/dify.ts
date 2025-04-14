@@ -11,9 +11,11 @@ interface DifyMessage {
 interface DifyResponse {
   answer: string;
   conversation_id: string;
+  detected_language?: string;
   variables?: {
     original_customer_query?: string;
     original_customer_query_cn?: string;
+    original_customer_language?: string;
   };
 }
 
@@ -45,6 +47,7 @@ export async function sendMessageToDify(
     return {
       answer: response.data.answer,
       conversation_id: response.data.conversation_id,
+      detected_language: response.data.variables?.original_customer_language,
       variables: response.data.variables
     };
   } catch (error) {

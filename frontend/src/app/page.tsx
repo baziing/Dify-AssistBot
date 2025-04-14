@@ -78,11 +78,12 @@ export default function Home() {
     console.log('添加AI加载消息后 messages.length:', messages.length + 2);
 
     try {
-      // 调用Dify API获取回复，保留自动添加【工单】标记
-      const response = await sendMessageToDify(`【工单】${content}`, conversationId);
+      const response = await sendMessageToDify(content, conversationId);
       
-      // 保存会话ID
-      setConversationId(response.conversation_id);
+      // 更新会话ID
+      if (!conversationId && response.conversation_id) {
+        setConversationId(response.conversation_id);
+      }
 
       // 如果是第一条消息，从数据库获取工单信息
       if (isFirstMessage) {
@@ -90,24 +91,30 @@ export default function Home() {
         try {
           const ticket = await getTicketByConversationId(response.conversation_id);
           if (ticket) {
-            setDetectedLanguage(ticket.language || 'unknown');
+            // 从response.variables中获取检测到的语言
+            const detectedLang = response.variables?.original_customer_language || ticket.language || 'unknown';
+            setDetectedLanguage(detectedLang);
             setTicketContent({
               original: ticket.ticket_content_original,
               translated: ticket.ticket_content_translated
             });
           } else {
-            setDetectedLanguage('unknown');
+            // 如果没有工单信息，仍然使用API返回的语言检测结果
+            const detectedLang = response.variables?.original_customer_language || 'unknown';
+            setDetectedLanguage(detectedLang);
             setTicketContent({
               original: content,
-              translated: content
+              translated: response.answer
             });
           }
         } catch (error) {
           console.error('Error getting ticket:', error);
-          setDetectedLanguage('unknown');
+          // 发生错误时仍然使用API返回的语言检测结果
+          const detectedLang = response.variables?.original_customer_language || 'unknown';
+          setDetectedLanguage(detectedLang);
           setTicketContent({
             original: content,
-            translated: content
+            translated: response.answer
           });
         }
       }
@@ -130,13 +137,13 @@ export default function Home() {
         setWorkflowId(newWorkflowId);
 
         try {
-          // 创建新工单
+          // 创建新工单，使用最新的语言检测结果
           await insertTicket({
             workflow_id: newWorkflowId,
             conversation_id: response.conversation_id,
             ticket_content_original: content,
-            ticket_content_translated: content,
-            language: detectedLanguage || 'unknown',
+            ticket_content_translated: response.answer,
+            language: response.variables?.original_customer_language || 'unknown',
             user_id: 'user'
           });
         } catch (error) {
@@ -309,6 +316,7 @@ export default function Home() {
           ref={translationToolRef}
           detectedLanguage={detectedLanguage}
           onReset={handleNewChat}
+          conversationId={conversationId}
         />
       </div>
     </main>
