@@ -15,16 +15,14 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
   ({ detectedLanguage, onReset, conversationId }, ref) => {
     const [sourceText, setSourceText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
-    const [sourceLanguage, setSourceLanguage] = useState(detectedLanguage || 'auto');
-    const [targetLanguage, setTargetLanguage] = useState('zh');
+    const [sourceLanguage, setSourceLanguage] = useState('zh');
+    const [targetLanguage, setTargetLanguage] = useState('auto');
     const [isTranslating, setIsTranslating] = useState(false);
 
-    // 当检测到的语言变化时更新源语言
+    // 当检测到的语言变化时更新目标语言
     useEffect(() => {
       if (detectedLanguage) {
-        setSourceLanguage(detectedLanguage);
-        // 如果检测到的是中文，则目标语言设为英文，否则设为中文
-        setTargetLanguage(detectedLanguage === 'zh' ? 'en' : 'zh');
+        setTargetLanguage(detectedLanguage);
       }
     }, [detectedLanguage]);
 
@@ -36,15 +34,8 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
       setTranslatedText('正在翻译...');
       
       try {
-        // 根据源语言和目标语言构建翻译请求
-        let translationPrefix;
-        if (targetLanguage === 'zh') {
-          // 如果目标语言是中文，则使用"翻译成中文"
-          translationPrefix = '【翻译成中文】';
-        } else {
-          // 如果目标语言不是中文，则使用"翻译成源语言"
-          translationPrefix = '【翻译成源语言】';
-        }
+        // 根据目标语言构建翻译请求
+        const translationPrefix = targetLanguage === 'zh' ? '【翻译成中文】' : '【翻译成源语言】';
         const response = await sendMessageToDify(`${translationPrefix}${sourceText}`, conversationId);
         setTranslatedText(response.answer);
       } catch (error) {
@@ -67,8 +58,8 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
     const handleReset = () => {
       setSourceText('');
       setTranslatedText('');
-      setSourceLanguage('auto');
-      setTargetLanguage('zh');
+      setSourceLanguage('zh');
+      setTargetLanguage('auto');
       onReset();
     };
 
@@ -77,8 +68,8 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
       resetTool: () => {
         setSourceText('');
         setTranslatedText('');
-        setSourceLanguage('auto');
-        setTargetLanguage('zh');
+        setSourceLanguage('zh');
+        setTargetLanguage('auto');
       }
     }));
 
