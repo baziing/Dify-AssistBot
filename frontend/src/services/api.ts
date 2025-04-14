@@ -59,19 +59,38 @@ export const getTicketByConversationId = async (conversationId: string): Promise
 // 根据会话ID和消息内容获取工作流翻译
 export const getWorkflowTranslation = async (conversationId: string, message: string): Promise<string> => {
   try {
+    console.log('Fetching workflow translation:', {
+      conversation_id: conversationId,
+      message: message
+    });
+
     const response = await axios.get('/api/get_workflow_translation', {
       params: {
         conversation_id: conversationId,
         message: message
       }
     });
-    // 检查响应是否存在且包含翻译内容
-    if (response.data && response.data.ai_message_translated) {
-      return response.data.ai_message_translated;
+
+    console.log('Workflow translation response:', response.data);
+
+    // 直接返回响应中的翻译内容
+    if (response.data && typeof response.data === 'string') {
+      return response.data;
     }
+
+    // 如果响应是对象，尝试获取translation字段
+    if (response.data && response.data.translation) {
+      return response.data.translation;
+    }
+
+    // 如果都没有找到，返回空字符串
     return '';
   } catch (error) {
-    console.error('Error fetching workflow translation:', error);
+    console.error('Error fetching workflow translation:', {
+      error,
+      conversation_id: conversationId,
+      message: message
+    });
     return '';
   }
 };
