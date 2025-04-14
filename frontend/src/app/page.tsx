@@ -184,10 +184,10 @@ export default function Home() {
   };
 
   const handleTranslate = async (content: string, messageIndex: number) => {
-    // 获取要翻译的消息的 stepNumber
+    // 获取要翻译的消息
     const targetMessage = messages[messageIndex];
-    if (!targetMessage || !targetMessage.stepNumber) {
-      console.error('No step number found for message');
+    if (!targetMessage) {
+      console.error('No message found');
       return;
     }
 
@@ -205,8 +205,8 @@ export default function Home() {
         throw new Error('No conversation ID available');
       }
 
-      // 从数据库获取翻译
-      const translation = await getWorkflowTranslation(conversationId, targetMessage.stepNumber);
+      // 从数据库获取翻译，使用消息内容而不是stepNumber
+      const translation = await getWorkflowTranslation(conversationId, content);
       
       // 移除加载消息
       setMessages(prev => {

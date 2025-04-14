@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 import mysql.connector
+from urllib.parse import unquote
 
 db_api = Blueprint('db_api', __name__)
 
@@ -206,37 +207,52 @@ def insert_ticket_workflow():
 
 @db_api.route('/get_workflow_translation', methods=['GET'])
 def get_workflow_translation():
-    # 从URL参数获取conversation_id和step_number
+    # 从URL参数获取conversation_id和message
     conversation_id = request.args.get('conversation_id')
-    step_number = request.args.get('step_number')
+    message = request.args.get('message')
 
     # 验证必需参数
-    if not all([conversation_id, step_number]):
+    if not all([conversation_id, message]):
         return jsonify({"error": "Missing required parameters"}), 400
+
+    # URL解码，将%0A转换为实际的换行符
+    message = unquote(message)
+    print("Decoded message:", message)  # 调试输出
+
+    # 标准化消息文本，移除末尾的换行符和多余的空格
+    normalized_message = message.strip()
+    print("Normalized message:", normalized_message)  # 调试输出
 
     # 数据库连接
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
     try:
-        # 查询数据
+        # 使用标准化后的文本进行匹配
         query = """
-        SELECT ai_message_translated
+        SELECT ai_message_translated, ai_message
         FROM tickets_workflows
-        WHERE conversation_id = %s AND step_number = %s
+        WHERE conversation_id = %s 
+        AND TRIM(ai_message) = %s
+        AND ai_message_translated IS NOT NULL
+        ORDER BY created_at DESC
+        LIMIT 1
         """
-        cursor.execute(query, (conversation_id, step_number))
+        cursor.execute(query, (conversation_id, normalized_message))
         result = cursor.fetchone()
         
-        # 确保所有结果都被读取
-        cursor.fetchall()  # 清空任何剩余的结果
-        
+        if result:
+            print("Found match:", result)  # 调试输出
+        else:
+            print("No match found for message")  # 调试输出
+            
         if not result:
             return jsonify({"error": "Translation not found"}), 404
             
         return jsonify(result), 200
     except mysql.connector.Error as err:
+        print("Database error:", str(err))  # 调试输出
         return jsonify({"error": str(err)}), 500
     finally:
         cursor.close()
-        connection.close() 
+        connection.close()
