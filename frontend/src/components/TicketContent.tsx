@@ -24,12 +24,12 @@ export function TicketContent({ originalContent, translatedContent, language }: 
   const hasMoreContent = currentContent && (currentContent.split('\n').length > 3 || currentContent.length > 200);
 
   return (
-    <div className="bg-white flex-none">
+    <div className="bg-gray-50 flex-none">
       <div className="max-w-3xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-gray-50">
+              <div className="w-8 h-8 rounded-sm flex items-center justify-center bg-white">
                 <MessageSquare className="w-5 h-5 text-gray-500" />
               </div>
               <h2 className="text-sm font-medium text-gray-700">工单内容</h2>

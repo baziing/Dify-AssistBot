@@ -114,10 +114,10 @@ export function SearchTool({ onReset, conversationId }: SearchToolProps) {
     if (searchResults.length === 0) return null;
     const result = searchResults[currentPage - 1];
     return (
-      <div className="whitespace-pre-wrap">
+      <div className="whitespace-pre-wrap bg-gray-50 rounded-lg p-4">
         <div className="font-medium mb-2">{result.question}</div>
-        <div className="my-2 border-t border-black"></div>
-        <div>{result.answer}</div>
+        <div className="my-2 border-t border-gray-200"></div>
+        <div className="text-gray-600">{result.answer}</div>
       </div>
     );
   };
