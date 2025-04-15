@@ -9,13 +9,13 @@ const getBaseUrl = () => {
   
   // 在服务器端渲染时返回默认值
   if (typeof window === 'undefined') {
-    return 'http://localhost:5003';
+    return `http://${process.env.NEXT_PUBLIC_API_HOST || 'localhost'}:${process.env.NEXT_PUBLIC_API_PORT || '5003'}`;
   }
   
   // 在客户端使用当前主机地址
   const protocol = window.location.protocol;
   const hostname = window.location.hostname;
-  return `${protocol}//${hostname}:5003`;
+  return `${protocol}//${hostname}:${process.env.NEXT_PUBLIC_API_PORT || '5003'}`;
 };
 
 // API基础URL
