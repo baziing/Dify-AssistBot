@@ -166,15 +166,21 @@ export function ChatInterface({
                       </pre>
                     </div>
                     
-                    <div 
-                      className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-                      onClick={() => handleTranslateClick(message, index)}
-                    >
-                      {expandedMessages.includes(index) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      <span>
-                        {translatingMessages.includes(index) ? '正在获取翻译...' : '显示翻译'}
-                      </span>
-                    </div>
+                    {!message.isLoading && (
+                      <div 
+                        className={`flex items-center gap-2 text-sm ${
+                          message.isLoading 
+                            ? 'text-gray-400 cursor-not-allowed' 
+                            : 'text-gray-500 cursor-pointer hover:text-gray-700'
+                        }`}
+                        onClick={() => !message.isLoading && handleTranslateClick(message, index)}
+                      >
+                        {expandedMessages.includes(index) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        <span>
+                          {translatingMessages.includes(index) ? '正在获取翻译...' : '显示翻译'}
+                        </span>
+                      </div>
+                    )}
                     
                     {expandedMessages.includes(index) && (
                       <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-600">
