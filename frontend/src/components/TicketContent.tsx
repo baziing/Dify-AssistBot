@@ -82,7 +82,7 @@ export function TicketContent({ originalContent, translatedContent, language }: 
             </>
           ) : (
             <div className="text-sm text-gray-400">
-              请输入工单信息...
+               
             </div>
           )}
         </div>

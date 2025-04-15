@@ -16,6 +16,7 @@ import {
   getWorkflowTranslation 
 } from '@/services/api';
 import { generateWorkflowId as generateUUID } from '@/utils/workflow';
+import { SearchTool } from '@/components/SearchTool';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -38,6 +39,7 @@ export default function Home() {
   const [workflowId, setWorkflowId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   const handleSendMessage = async (content: string) => {
     console.log('开始处理消息时 messages.length:', messages.length);
@@ -253,7 +255,7 @@ export default function Home() {
   return (
     <main className="h-screen flex bg-gray-50 relative overflow-hidden">
       <div className={`flex-1 flex flex-col min-h-0 transition-all duration-300 ${
-        showTranslation ? 'mr-80' : 'mr-0'
+        showTranslation || showSearch ? 'mr-80' : 'mr-0'
       }`}>
         <div className="flex-none px-4 py-3 bg-white border-b border-gray-100">
           <div className="max-w-3xl mx-auto flex justify-between items-center">
@@ -261,16 +263,36 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                size="sm"
                 className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                onClick={() => setShowTranslation(!showTranslation)}
+                onClick={() => {
+                  if (showSearch) {
+                    setShowSearch(false);
+                  } else {
+                    setShowSearch(true);
+                    setShowTranslation(false);
+                  }
+                }}
+              >
+                <Search className={`w-4 h-4 ${showSearch ? 'text-gray-600' : 'text-gray-400'}`} />
+                <span>{showSearch ? '隐藏检索' : '显示检索'}</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                onClick={() => {
+                  if (showTranslation) {
+                    setShowTranslation(false);
+                  } else {
+                    setShowTranslation(true);
+                    setShowSearch(false);
+                  }
+                }}
               >
                 <Languages className={`w-4 h-4 ${showTranslation ? 'text-gray-600' : 'text-gray-400'}`} />
                 <span>{showTranslation ? '隐藏翻译' : '显示翻译'}</span>
               </Button>
               <Button 
-                variant="ghost" 
-                size="sm" 
+                variant="ghost"
                 className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
                 onClick={handleNewChat}
               >
@@ -300,15 +322,25 @@ export default function Home() {
         </div>
       </div>
       
-      <div className={`w-80 flex-none border-l border-gray-100 bg-white transition-all duration-300 absolute right-0 top-0 bottom-0 ${
-        showTranslation ? 'translate-x-0' : 'translate-x-full'
-      }`}>
-        <TranslationTool 
-          ref={translationToolRef}
-          detectedLanguage={detectedLanguage}
-          onReset={handleNewChat}
-          conversationId={conversationId}
-        />
+      <div
+        className={`fixed top-0 right-0 w-80 h-full bg-white border-l border-gray-100 transform transition-transform duration-300 ${
+          showTranslation || showSearch ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {showTranslation && (
+          <TranslationTool
+            detectedLanguage={detectedLanguage}
+            onReset={handleNewChat}
+            conversationId={conversationId}
+            ref={translationToolRef}
+          />
+        )}
+        {showSearch && (
+          <SearchTool
+            onReset={handleNewChat}
+            conversationId={conversationId}
+          />
+        )}
       </div>
     </main>
   );
