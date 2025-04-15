@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Card } from './ui/card';
-import { Send, Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 import { TranslationMessage } from './TranslationMessage';
 import { getWorkflowTranslation } from '@/services/api';
 
@@ -37,6 +37,7 @@ export function ChatInterface({
   const [input, setInput] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);
   const [translatingMessages, setTranslatingMessages] = useState<number[]>([]);
+  const [copiedStates, setCopiedStates] = useState<{[key: string]: boolean}>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -66,6 +67,18 @@ export function ChatInterface({
   useEffect(() => {
     console.log("messages:", messages);
   }, [messages]);
+
+  const handleCopy = async (text: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedStates(prev => ({ ...prev, [key]: true }));
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [key]: false }));
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
+  };
 
   // 获取翻译内容
   const fetchTranslation = async (message: Message, index: number) => {
@@ -160,10 +173,20 @@ export function ChatInterface({
                 </div>
                 {message.role === 'assistant' && (
                   <div className="space-y-2">
-                    <div className="text-gray-900">
+                    <div className="text-gray-900 relative group">
                       <pre className="font-sans text-inherit whitespace-pre-wrap">
                         {message.content}
                       </pre>
+                      <button
+                        onClick={() => handleCopy(message.content, `message-${index}`)}
+                        className="absolute bottom-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        {copiedStates[`message-${index}`] ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
                     </div>
                     
                     {!message.isLoading && (
@@ -183,10 +206,22 @@ export function ChatInterface({
                     )}
                     
                     {expandedMessages.includes(index) && (
-                      <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-600">
+                      <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-600 relative group">
                         <pre className="font-mono text-inherit whitespace-pre-wrap">
                           {message.variables?.database_translation || '正在获取翻译...'}
                         </pre>
+                        {message.variables?.database_translation && (
+                          <button
+                            onClick={() => handleCopy(message.variables?.database_translation || '', `translation-${index}`)}
+                            className="absolute bottom-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            {copiedStates[`translation-${index}`] ? (
+                              <Check className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                            )}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

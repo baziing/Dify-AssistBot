@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { sendMessageToDify } from '@/services/dify';
@@ -12,16 +12,29 @@ interface QAResult {
 
 interface SearchToolProps {
   onReset: () => void;
-  conversationId?: string;
 }
 
-export function SearchTool({ onReset, conversationId }: SearchToolProps) {
+export function SearchTool({ onReset }: SearchToolProps) {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<QAResult[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [jumpPage, setJumpPage] = useState('');
+  const [copiedState, setCopiedState] = useState(false);
+  const [searchConversationId, setSearchConversationId] = useState<string>();
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedState(true);
+      setTimeout(() => {
+        setCopiedState(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
+  };
 
   // 生成分页按钮数组
   const getPageButtons = () => {
@@ -75,7 +88,12 @@ export function SearchTool({ onReset, conversationId }: SearchToolProps) {
     setHasSearched(true);
     
     try {
-      const response = await sendMessageToDify(`【搜索】${searchText}`, conversationId);
+      const response = await sendMessageToDify(`【搜索】${searchText}`, searchConversationId);
+      // 保存新的会话 ID
+      if (!searchConversationId && response.conversation_id) {
+        setSearchConversationId(response.conversation_id);
+      }
+      
       if (response?.answer) {
         // 使用正则表达式匹配 Question 和 answer 对，支持多行内容
         const qaRegex = /Question":"(.*?)"\s*answer:"([\s\S]*?)(?=\s*Question|$)/g;
@@ -84,7 +102,7 @@ export function SearchTool({ onReset, conversationId }: SearchToolProps) {
         
         while ((match = qaRegex.exec(response.answer)) !== null) {
           const question = match[1].trim();
-          const answer = match[2].trim().replace(/"\s*$/, ''); // 移除末尾的引号和空白
+          const answer = match[2].trim().replace(/"\s*$/, '');
           
           if (question && answer) {
             results.push({
@@ -117,7 +135,19 @@ export function SearchTool({ onReset, conversationId }: SearchToolProps) {
       <div className="whitespace-pre-wrap bg-gray-50 rounded-lg p-4">
         <div className="font-medium mb-2">{result.question}</div>
         <div className="my-2 border-t border-gray-200"></div>
-        <div className="text-gray-600">{result.answer}</div>
+        <div className="text-gray-600 relative group">
+          <div>{result.answer}</div>
+          <button
+            onClick={() => handleCopy(result.answer)}
+            className="absolute bottom-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            {copiedState ? (
+              <Check className="w-4 h-4 text-green-500" />
+            ) : (
+              <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+            )}
+          </button>
+        </div>
       </div>
     );
   };

@@ -338,7 +338,6 @@ export default function Home() {
         {showSearch && (
           <SearchTool
             onReset={handleNewChat}
-            conversationId={conversationId}
           />
         )}
       </div>
