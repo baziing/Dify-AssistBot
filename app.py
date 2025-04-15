@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 # 获取项目根目录
-ROOT_DIR = Path(__file__).parent.parent
+ROOT_DIR = Path(__file__).parent
 ENV_FILE = ROOT_DIR / 'frontend' / '.env.local'
 
 # 加载环境变量并打印调试信息
