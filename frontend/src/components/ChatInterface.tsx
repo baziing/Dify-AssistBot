@@ -216,13 +216,26 @@ export function ChatInterface({
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="请输入您的问题..."
                 className="min-h-[60px] max-h-[90px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-4"
-                onKeyDown={(e) => {
+                onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                  // 如果是正在使用输入法，不处理 Enter 键
+                  if ((e.nativeEvent as any).isComposing || e.keyCode === 229) {
+                    return;
+                  }
+                  
+                  // 只在按下 Enter 且没有按下 Shift 键时发送消息
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     if (input.trim()) {
                       onSendMessage(input);
                       setInput('');
                     }
+                  }
+                }}
+                // 添加 onCompositionEnd 事件处理
+                onCompositionEnd={(e: React.CompositionEvent<HTMLTextAreaElement>) => {
+                  // 输入法输入完成后，如果用户按下了 Enter，不自动发送
+                  if (e.data && input.trim()) {
+                    return;
                   }
                 }}
               />
