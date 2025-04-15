@@ -28,7 +28,7 @@ export async function sendMessageToDify(
   try {
     console.log('Sending message to Dify:', { message, conversationId });
 
-    // 1. 获取 AI 回答
+    // 获取 AI 回答
     const response = await axios.post(
       `${DIFY_API_ENDPOINT}/chat-messages`,
       {
@@ -49,28 +49,16 @@ export async function sendMessageToDify(
 
     console.log('Dify response:', response.data);
 
-    // 2. 等待一段时间，确保工单创建完成
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // 3. 获取工作流翻译
-    const translation = await getWorkflowTranslation(
-      response.data.conversation_id,
-      response.data.answer
-    );
-
-    console.log('Translation result:', translation);
-
     return {
       answer: response.data.answer,
       conversation_id: response.data.conversation_id,
       detected_language: response.data.variables?.original_customer_language,
       variables: {
-        ...response.data.variables,
-        database_translation: translation || null
+        ...response.data.variables
       }
     };
   } catch (error) {
     console.error('Error sending message to Dify:', error);
     throw error;
   }
-} 
+}

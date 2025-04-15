@@ -23,6 +23,7 @@ interface Message {
   translated?: string;
   isLoading?: boolean;
   stepNumber?: string;
+  variables?: Record<string, any>;
 }
 
 export default function Home() {
@@ -82,6 +83,7 @@ export default function Home() {
       
       // 更新会话ID
       if (!conversationId && response.conversation_id) {
+        console.log('设置新的会话ID:', response.conversation_id);
         setConversationId(response.conversation_id);
       }
 
@@ -125,7 +127,11 @@ export default function Home() {
           role: 'assistant',
           content: response.answer,
           isLoading: false,
-          stepNumber: currentStepNumber
+          stepNumber: currentStepNumber,
+          variables: {
+            ...response.variables,
+            conversation_id: response.conversation_id
+          }
         } : msg
       ));
 
@@ -151,23 +157,6 @@ export default function Home() {
         }
       }
 
-      // 保存工单工作流记录
-      // if (workflowId) {
-      //   console.log('准备保存工作流记录时');
-      //   try {
-      //     await insertTicketWorkflow({
-      //       workflow_id: workflowId,
-      //       step_number: currentStepNumber,
-      //       ai_message: response.answer,
-      //       ai_message_translated: response.answer,
-      //       customer_message: content,
-      //       conversation_id: response.conversation_id,
-      //       user_id: 'user'
-      //     });
-      //   } catch (error) {
-      //     console.error('Error saving ticket workflow:', error);
-      //   }
-      // }
     } catch (error) {
       console.error('Error sending message to Dify:', error);
       // 移除加载消息
@@ -305,6 +294,8 @@ export default function Home() {
             messages={messages}
             onSendMessage={handleSendMessage}
             onTranslate={handleTranslate}
+            conversationId={conversationId}
+            setMessages={setMessages}
           />
         </div>
       </div>

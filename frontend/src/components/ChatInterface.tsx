@@ -4,6 +4,7 @@ import { Textarea } from './ui/textarea';
 import { Card } from './ui/card';
 import { Send, Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { TranslationMessage } from './TranslationMessage';
+import { getWorkflowTranslation } from '@/services/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -22,11 +23,20 @@ interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (content: string) => void;
   onTranslate: (content: string, messageIndex: number) => void;
+  conversationId?: string;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
-export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInterfaceProps) {
+export function ChatInterface({ 
+  messages, 
+  onSendMessage, 
+  onTranslate, 
+  conversationId,
+  setMessages 
+}: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);
+  const [translatingMessages, setTranslatingMessages] = useState<number[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -51,6 +61,77 @@ export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInte
         ? prev.filter(i => i !== index)
         : [...prev, index]
     );
+  };
+
+  useEffect(() => {
+    console.log("messages:", messages);
+  }, [messages]);
+
+  // 获取翻译内容
+  const fetchTranslation = async (message: Message, index: number) => {
+    const messageConversationId = message.variables?.conversation_id || conversationId;
+    
+    if (!messageConversationId || translatingMessages.includes(index)) {
+      console.log('跳过翻译获取:', {
+        reason: !messageConversationId ? 'conversationId不存在' : '正在翻译中',
+        messageConversationId,
+        conversationId,
+        isTranslating: translatingMessages.includes(index)
+      });
+      return;
+    }
+
+    setTranslatingMessages(prev => [...prev, index]);
+    try {
+      console.log('调用翻译API:', {
+        conversationId: messageConversationId,
+        messageContent: message.content
+      });
+      const translation = await getWorkflowTranslation(messageConversationId, message.content);
+      console.log('获取到翻译结果:', translation);
+
+      if (translation) {
+        setMessages(prevMessages => {
+          console.log('更新消息的翻译:', {
+            messageIndex: index,
+            translation: translation,
+            totalMessages: prevMessages.length
+          });
+          return prevMessages.map((msg, i) => 
+            i === index ? {
+              ...msg,
+              variables: {
+                ...msg.variables,
+                database_translation: translation
+              }
+            } : msg
+          );
+        });
+      }
+    } catch (error) {
+      console.error('获取翻译失败:', error);
+    } finally {
+      setTranslatingMessages(prev => prev.filter(i => i !== index));
+    }
+  };
+
+  // 点击显示翻译按钮的处理函数
+  const handleTranslateClick = async (message: Message, index: number) => {
+    console.log('点击显示翻译按钮:', {
+      messageIndex: index,
+      messageContent: message.content,
+      hasTranslation: !!message.variables?.database_translation,
+      conversationId,
+      isExpanded: expandedMessages.includes(index)
+    });
+
+    toggleMessageExpand(index);
+    
+    // 如果是展开操作且没有翻译内容，获取翻译
+    if (!expandedMessages.includes(index) && !message.variables?.database_translation) {
+      console.log('开始获取翻译...');
+      fetchTranslation(message, index);
+    }
   };
 
   return (
@@ -81,22 +162,24 @@ export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInte
                   <div className="space-y-2">
                     <div className="text-gray-900">
                       <pre className="font-sans text-inherit whitespace-pre-wrap">
-                        {message.variables?.database_translation || message.content}
+                        {message.content}
                       </pre>
                     </div>
                     
                     <div 
                       className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer hover:text-gray-700"
-                      onClick={() => toggleMessageExpand(index)}
+                      onClick={() => handleTranslateClick(message, index)}
                     >
                       {expandedMessages.includes(index) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      <span>显示原文</span>
+                      <span>
+                        {translatingMessages.includes(index) ? '正在获取翻译...' : '显示翻译'}
+                      </span>
                     </div>
                     
                     {expandedMessages.includes(index) && (
                       <div className="p-3 bg-gray-50 rounded-md text-sm text-gray-600">
                         <pre className="font-mono text-inherit whitespace-pre-wrap">
-                          {message.content}
+                          {message.variables?.database_translation || '正在获取翻译...'}
                         </pre>
                       </div>
                     )}
@@ -156,4 +239,4 @@ export function ChatInterface({ messages, onSendMessage, onTranslate }: ChatInte
       </div>
     </div>
   );
-} 
+}
