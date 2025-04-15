@@ -1,13 +1,40 @@
 import axios from 'axios';
 
+// 获取当前主机地址
+const getBaseUrl = () => {
+  // 如果有环境变量配置，优先使用
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  
+  // 在服务器端渲染时返回默认值
+  if (typeof window === 'undefined') {
+    return 'http://localhost:5003';
+  }
+  
+  // 在客户端使用当前主机地址
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  return `${protocol}//${hostname}:5003`;
+};
+
 // API基础URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.111.225:5003';
+const API_BASE_URL = getBaseUrl();
 
 // 配置axios默认值
 axios.defaults.baseURL = API_BASE_URL;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.withCredentials = false; // 禁用credentials
+
+// 仅在客户端打印日志
+if (typeof window !== 'undefined') {
+  console.log('API 配置初始化完成:', {
+    baseURL: API_BASE_URL,
+    protocol: window.location.protocol,
+    hostname: window.location.hostname
+  });
+}
 
 // 工单接口
 export interface Ticket {
