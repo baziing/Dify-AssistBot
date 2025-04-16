@@ -68,15 +68,30 @@ export function ChatInterface({
     console.log("messages:", messages);
   }, [messages]);
 
-  const handleCopy = async (text: string, key: string) => {
+  const handleCopy = (text: string, key: string) => {
+    if (!text) {
+      console.error('No text to copy');
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(text);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
       setCopiedStates(prev => ({ ...prev, [key]: true }));
       setTimeout(() => {
         setCopiedStates(prev => ({ ...prev, [key]: false }));
       }, 2000);
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      console.error('复制失败:', err);
     }
   };
 

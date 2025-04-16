@@ -24,15 +24,32 @@ export function SearchTool({ onReset }: SearchToolProps) {
   const [copiedState, setCopiedState] = useState(false);
   const [searchConversationId, setSearchConversationId] = useState<string>();
 
-  const handleCopy = async (text: string) => {
+  const handleCopy = (text: string) => {
+    if (!text) {
+      console.error('No text to copy');
+      return;
+    }
+
     try {
-      await navigator.clipboard.writeText(text);
+      // 使用临时文本区域进行复制
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      // 更新复制状态
       setCopiedState(true);
       setTimeout(() => {
         setCopiedState(false);
       }, 2000);
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      console.error('复制失败:', err);
     }
   };
 
