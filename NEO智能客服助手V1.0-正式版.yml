@@ -1,0 +1,2707 @@
+app:
+  description: 本对话工作流用途：输入用户通过客诉渠道发送的所有信息（例如充值问题中的充值时间、金额、订单号等），AI将会返回推荐的回复，及中文翻译
+  icon: ☎️
+  icon_background: '#D1E9FF'
+  mode: advanced-chat
+  name: NEO智能客服助手V1.0-正式版
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/gemini:0.1.3@74a18ba86ecea3cd6e37eae1a34829691556470d514169abd6a0bcbebecb8fa3
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.0.18@ca40ec06ff35ca611fa5fdf99a15eeb007a9fe3bd725c9ff6d0436469ab0edc9
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables:
+  - description: ''
+    id: 53c68e20-cf1b-46df-a006-cc66d5fade2b
+    name: original_customer_query_cn
+    selector:
+    - conversation
+    - original_customer_query_cn
+    value: ''
+    value_type: string
+  - description: 记录聊天历史
+    id: 58565418-1811-4981-b80c-5f2f4c35d228
+    name: last_suggested_reply
+    selector:
+    - conversation
+    - last_suggested_reply
+    value: ''
+    value_type: string
+  - description: 知识库调用
+    id: 75baef84-5b65-452e-9f61-a44c223119f5
+    name: original_knowledgebase
+    selector:
+    - conversation
+    - original_knowledgebase
+    value: []
+    value_type: array[object]
+  - description: 客诉的语言
+    id: 6fae065c-eb1f-4335-a2a5-8091482836f2
+    name: original_customer_language
+    selector:
+    - conversation
+    - original_customer_language
+    value: ''
+    value_type: string
+  - description: 用户客诉信息原文
+    id: 680d1c62-d14f-4603-bb60-a97ab1618873
+    name: original_customer_query
+    selector:
+    - conversation
+    - original_customer_query
+    value: ''
+    value_type: string
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: llm
+      id: 1741857216697-source-1741859048627-target
+      selected: false
+      source: '1741857216697'
+      sourceHandle: source
+      target: '1741859048627'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1744083664743-false-1744083709745-target
+      selected: false
+      source: '1744083664743'
+      sourceHandle: 'false'
+      target: '1744083709745'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1744083664743-true-llm-target
+      selected: false
+      source: '1744083664743'
+      sourceHandle: 'true'
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: assigner
+        targetType: llm
+      id: 1744083842066-source-1741857216697-target
+      selected: false
+      source: '1744083842066'
+      sourceHandle: source
+      target: '1741857216697'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+      id: llm-source-1741858554479-target
+      selected: false
+      source: llm
+      sourceHandle: source
+      target: '1741858554479'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: assigner
+      id: 1741859048627-source-1744093285414-target
+      selected: false
+      source: '1741859048627'
+      sourceHandle: source
+      target: '1744093285414'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: llm
+      id: 1744083709745-source-1744093814895-target
+      selected: false
+      source: '1744083709745'
+      sourceHandle: source
+      target: '1744093814895'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: assigner
+      id: 1744093814895-source-1744093359805-target
+      selected: false
+      source: '1744093814895'
+      sourceHandle: source
+      target: '1744093359805'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: if-else
+      id: 1741856734681-source-1744097468737-target
+      selected: false
+      source: '1741856734681'
+      sourceHandle: source
+      target: '1744097468737'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: 1744097468737-true-1744097711007-target
+      selected: false
+      source: '1744097468737'
+      sourceHandle: 'true'
+      target: '1744097711007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: if-else
+      id: 1744097711007-source-1744083664743-target
+      selected: false
+      source: '1744097711007'
+      sourceHandle: source
+      target: '1744083664743'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: 1744097468737-127f4e4d-fb18-478b-83f2-70e5862c5fac-1744098522609-target
+      selected: false
+      source: '1744097468737'
+      sourceHandle: 127f4e4d-fb18-478b-83f2-70e5862c5fac
+      target: '1744098522609'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: llm
+      id: 1744098522609-source-1744098515121-target
+      selected: false
+      source: '1744098522609'
+      sourceHandle: source
+      target: '1744098515121'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: 1744097468737-d8e95e5d-acf2-49d9-9f2c-49931b675ffc-1744106313810-target
+      selected: false
+      source: '1744097468737'
+      sourceHandle: d8e95e5d-acf2-49d9-9f2c-49931b675ffc
+      target: '1744106313810'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: knowledge-retrieval
+      id: 1744106313810-source-1744106307634-target
+      selected: false
+      source: '1744106313810'
+      sourceHandle: source
+      target: '1744106307634'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: template-transform
+      id: 1744106307634-source-1744106445636-target
+      selected: false
+      source: '1744106307634'
+      sourceHandle: source
+      target: '1744106445636'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: template-transform
+        targetType: answer
+      id: 1744106445636-source-1744106527677-target
+      selected: false
+      source: '1744106445636'
+      sourceHandle: source
+      target: '1744106527677'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1741858554479-source-1744273485895-target
+      selected: false
+      source: '1741858554479'
+      sourceHandle: source
+      target: '1744273485895'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: assigner
+      id: 1744273485895-source-1744083842066-target
+      selected: false
+      source: '1744273485895'
+      sourceHandle: source
+      target: '1744083842066'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: code
+      id: 1744097468737-7149177c-7089-4992-813f-3883b109cfb5-17446130571730-target
+      source: '1744097468737'
+      sourceHandle: 7149177c-7089-4992-813f-3883b109cfb5
+      target: '17446130571730'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: code
+        targetType: llm
+      id: 17446130571730-source-17446130935610-target
+      source: '17446130571730'
+      sourceHandle: source
+      target: '17446130935610'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: answer
+      id: 1744097468737-false-1744098761417-target
+      source: '1744097468737'
+      sourceHandle: 'false'
+      target: '1744098761417'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: tool
+      id: 1744093285414-source-1744800998877-target
+      source: '1744093285414'
+      sourceHandle: source
+      target: '1744800998877'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: 1744800998877-source-1744801113750-target
+      source: '1744800998877'
+      sourceHandle: source
+      target: '1744801113750'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: answer
+      id: 1744801113750-source-1741858643543-target
+      source: '1744801113750'
+      sourceHandle: source
+      target: '1741858643543'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: tool
+      id: 1744093359805-source-1744801296844-target
+      source: '1744093359805'
+      sourceHandle: source
+      target: '1744801296844'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: answer
+      id: 1744801296844-source-1744093437470-target
+      source: '1744801296844'
+      sourceHandle: source
+      target: '1744093437470'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: answer
+      id: 1744801395525-source-1744098681436-target
+      source: '1744801395525'
+      sourceHandle: source
+      target: '1744098681436'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: 1744098515121-source-1744801395525-target
+      source: '1744098515121'
+      sourceHandle: source
+      target: '1744801395525'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: 17446130935610-source-1744801510601-target
+      source: '17446130935610'
+      sourceHandle: source
+      target: '1744801510601'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: answer
+      id: 1744801510601-source-17446132257240-target
+      source: '1744801510601'
+      sourceHandle: source
+      target: '17446132257240'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables: []
+      height: 54
+      id: '1741856734681'
+      position:
+        x: 30
+        y: 334
+      positionAbsolute:
+        x: 30
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 230691b6-b92a-4eb3-b183-855edd5831cb
+          role: system
+          text: '##人设
+
+            你是一个识别语种的机器人，精通各种语言以及小语种
+
+            ##目标
+
+            判断收到的文字的语种
+
+            ##返回格式
+
+            返回对应语种的ISO 639语言代码，只需要回答代码内容，例如 zh '
+        - id: e9977f1a-be9b-4f89-b40b-3c31f7dfe439
+          role: user
+          text: '识别内容：
+
+            "{{#1744097711007.result#}}"'
+        selected: false
+        title: 对话工单_语种
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: llm
+      position:
+        x: 1239
+        y: 334
+      positionAbsolute:
+        x: 1239
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1741858554479'
+          - result
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 13c2266a-9ae3-4a3d-be31-cb1baf3284bf
+          role: system
+          text: "<instructions>\n  <role>\n    你是一位专业的 MMO 手游客服助手，你的任务是根据用户（玩家）的反馈或投诉，生成专业、准确且友好的回复，帮助客服人员提高工作效率。\n\
+            \  </role>\n\n  <knowledge>\n    你可以参考以下客服案例，提取关键信息组成你的回复：\"{{#context#}}\"\
+            \n  </knowledge>\n\n  <overall_guidelines>\n    <guideline>核心目标：始终以解决玩家问题为首要目标，提供清晰、简洁、准确的回复。</guideline>\n\
+            \    <guideline>语言风格：使用礼貌、专业且易于理解的语言。避免使用行话或过于技术性的术语。</guideline>\n  \
+            \  <guideline>信息准确性：优先基于提供的上下文信息生成回复。如果上下文信息不足，请尽力提供最合适的答案，并明确指出信息可能不完整。</guideline>\n\
+            \    <guideline>多问题处理：如果玩家提出了多个问题，请逐一解答，确保每个问题都得到回应。</guideline>\n   \
+            \ <guideline>敏感内容处理：对于涉及色情、政治和歧视的内容，请谨慎处理，并给予恰当的回复（例如，礼貌地告知玩家此类内容无法处理）。</guideline>\n\
+            \    <guideline>玩家称呼：在每次回复的开头，先用玩家所在地区的语言称呼玩家。中文玩家称呼为“冒险者”，其他语种请自行翻译为对应的称呼。</guideline>\n\
+            \    <guideline>格式规范：不要包含任何 XML 标签。</guideline>\n  </overall_guidelines>\n\
+            \n  <step_by_step_instructions>\n    <step>阅读理解：仔细阅读玩家的反馈或投诉内容，准确理解玩家的核心问题或需求。识别关键词和短语，以便在上下文中进行搜索。</step>\n\
+            \    <step>上下文搜索：基于玩家反馈中的关键词，在提供的上下文信息中搜索相关内容。注意寻找与玩家问题直接相关的信息片段。</step>\n\
+            \    <step>\n      回复生成：\n      <condition>如果找到与玩家问题完全匹配的信息：基于上下文信息，直接、准确地回答玩家的问题。</condition>\n\
+            \      <condition>如果找到部分匹配的信息：整合相关信息，尽可能提供最接近的答案。并在回复中说明信息可能不完整，例如：“根据现有信息，...，但可能还有其他因素需要考虑。”</condition>\n\
+            \      <condition>如果找不到匹配的信息：诚实地告知玩家无法找到相关信息，并提供可能的替代解决方案或建议，例如：“很抱歉，目前没有找到与您的问题直接相关的信息。您可以尝试...，或联系我们的客服专员获取进一步帮助。”</condition>\n\
+            \    </step>\n    <step>语言和称呼：根据玩家使用的语言 ({{#llm.text#}}) 生成回复, 并在回复开头加上对玩家的称呼（“冒险者”或其他语言的对应称呼）。</step>\n\
+            \  </step_by_step_instructions>\n</instructions>\n"
+        - id: f8cb1d6e-8710-4e36-a198-973048f5cf54
+          role: user
+          text: '用户客诉：
+
+            "{{#1744097711007.result#}}"'
+        selected: false
+        title: 对话首轮_翻译回复
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector: []
+          enabled: false
+      height: 90
+      id: '1741857216697'
+      position:
+        x: 2450
+        y: 334
+      positionAbsolute:
+        x: 2450
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - X8CN4Zj/bObVqMQB3GQX9VmD1/cV0ikyeEV45Ise80jvQPQzzM/XBpuR/kwY4yBt
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          score_threshold: null
+          top_k: 4
+        query_variable_selector:
+        - '1744097711007'
+        - result
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 92
+      id: '1741858554479'
+      position:
+        x: 1543
+        y: 334
+      positionAbsolute:
+        x: 1543
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#conversation.last_suggested_reply#}}
+
+          '
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 105
+      id: '1741858643543'
+      position:
+        x: 3960
+        y: 334
+      positionAbsolute:
+        x: 3960
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: e59abe00-d724-43e0-b779-483ea084a612
+          role: system
+          text: '##人设
+
+            你是一个资深本地化翻译，擅长将各种语言翻译成中文
+
+            ##背景
+
+            你正在为一个游戏的客服回复内容提供翻译
+
+            ##参考信息
+
+            这是玩家的原始客诉，你在翻译的时候可以参考：{{#conversation.original_customer_query#}}
+
+            ##目标
+
+            将接收到的任何语言内容翻译成中文，你只需要回复翻译后的中文，切忌冗余信息
+
+            ##特别注意
+
+            你只需要回复翻译后的中文，切忌冗余信息'
+        - id: f8ec8bc1-0b2f-436d-b525-0b769575d096
+          role: user
+          text: '{{#1741857216697.text#}}'
+        selected: false
+        title: 对话首轮_中文回复
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '1741859048627'
+      position:
+        x: 2752
+        y: 334
+      positionAbsolute:
+        x: 2752
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: 46f84cd4-784e-441a-8855-a8ddf7de9930
+            value: ''
+            varType: string
+            variable_selector:
+            - conversation
+            - original_customer_query
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 是否为首次
+        type: if-else
+      height: 126
+      id: '1744083664743'
+      position:
+        x: 936
+        y: 334
+      positionAbsolute:
+        x: 936
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - conversation
+          - original_knowledgebase
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 50
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: dc312332-d91a-4e5c-81fa-2cb8fcb95f3a
+          role: system
+          text: "<指令>\n  <角色>\n    你是一位专业的 MMO 客服助手。你当前的任务是根据人类客服代理提供的反馈，修订先前建议的回复。请注意，你并不是在与客服代理对话，而是在为原始玩家生成一个新的、最终的回复。\n\
+            \  </角色>\n\n  <上下文信息>\n    # 这是你在执行任务时需要考虑的所有信息：\n\n    ## 原始玩家问题:\n \
+            \   玩家最初反馈的问题是：\n    \"{{#conversation.original_customer_query#}}\"\n\n\
+            \    ## 原始玩家语言:\n    玩家使用的语言是： {{#conversation.original_customer_language#}}\n\
+            \    (你最终生成的回复**必须**使用这种语言)\n\n    ## 上一轮建议的回复 (需要修订的那个):\n    这是在上一轮对话中系统建议的回复：\n\
+            \    \"{{#conversation.last_suggested_reply#}}\"\n    (请分析这个回复。如果它为空，或者看起来与原始问题无关，请忽略它，并专注于根据“原始玩家问题”和下面的“客服修改指令”来生成一个全新的回复。)\n\
+            \n    ## 客服的修改指令:\n    客服人员就如何修改或改进上一轮回复，提供了以下具体指令：\n    \"{{#sys.query#}}\"\
+            \n    (这个指令告诉你**如何**修改，例如：“回复写长一点”、“语气更共情一些”、“详细解释退款流程”、“重新检查知识库里关于政策X的说明”、“不要提及Y”等。)\n\
+            \n    ## 相关知识库信息:\n    以下是知识库中，可能与“原始玩家问题”相关的参考信息：\n    \"{{#context#}}\"\
+            \n    (如果为了满足客服的修改指令或提高回复的准确性与细节，需要用到这些信息，请参考使用。)\n  </上下文信息>\n\n  <任务>\n\
+            \    # 你本次需要完成的具体目标：\n\n    1.  **理解**“客服的修改指令”，明确客服要求进行哪些具体的更改。\n   \
+            \ 2.  基于客服的指令，**修订**“上一轮建议的回复”。确保修订后的回复仍然准确地回应“原始玩家问题”。\n    3.  如有必要（根据客服指令或为了准确性），参考使用“相关知识库信息”。\n\
+            \    4.  **至关重要：** 整个修订后的回复内容，必须使用玩家的**“原始玩家语言” ({{#conversation.original_customer_language#}})**\
+            \ 来生成。\n    5.  回复的**开头**，必须使用该语言对应的正确玩家称呼（例如：中文是“冒险者”，英文是“Adventurer”，西班牙语是“Aventurero”等，请自行翻译）。\n\
+            \    6.  **仅输出最终的、修订后的、准备发送给玩家的回复文本**。绝对不要包含以下任何内容：\n        *   关于你如何进行修订的解释（例如：“好的，已按要求加长回复内容”）。\n\
+            \        *   为上一版回复道歉。\n        *   任何与客服代理进行的对话性填充语（例如：“这是更新后的回复：”）。\n\
+            \        *   最终输出的文本中包含任何 XML 标签。\n  </任务>\n\n  <输出格式与语气>\n    - 输出纯文本。\n\
+            \    - 保持专业、有帮助且富有同理心的语气，符合游戏客服的规范。\n    - 严格遵守要求的“原始玩家语言”。\n  </输出格式与语气>\n\
+            </指令>\n"
+        - id: a7be140d-d31b-4acf-acef-8e03b9cc816f
+          role: user
+          text: 请根据系统提示中提供的指令和上下文信息，生成修订后的客服回复。
+        selected: false
+        title: 外语_对话回复
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '1744083709745'
+      position:
+        x: 1239
+        y: 485
+      positionAbsolute:
+        x: 1239
+        y: 485
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1744097711007'
+          - result
+          variable_selector:
+          - conversation
+          - original_customer_query
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - llm
+          - text
+          variable_selector:
+          - conversation
+          - original_customer_language
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1741858554479'
+          - result
+          variable_selector:
+          - conversation
+          - original_knowledgebase
+          write_mode: over-write
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1744273485895'
+          - text
+          variable_selector:
+          - conversation
+          - original_customer_query_cn
+          write_mode: over-write
+        selected: false
+        title: 变量赋值
+        type: assigner
+        version: '2'
+      height: 172
+      id: '1744083842066'
+      position:
+        x: 2148
+        y: 334
+      positionAbsolute:
+        x: 2148
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1741859048627'
+          - text
+          variable_selector:
+          - conversation
+          - last_suggested_reply
+          write_mode: over-write
+        selected: false
+        title: 变量赋值 2
+        type: assigner
+        version: '2'
+      height: 88
+      id: '1744093285414'
+      position:
+        x: 3054
+        y: 334
+      positionAbsolute:
+        x: 3054
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1744093814895'
+          - text
+          variable_selector:
+          - conversation
+          - last_suggested_reply
+          write_mode: over-write
+        selected: false
+        title: 变量赋值 3
+        type: assigner
+        version: '2'
+      height: 88
+      id: '1744093359805'
+      position:
+        x: 1846
+        y: 486
+      positionAbsolute:
+        x: 1846
+        y: 486
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#conversation.last_suggested_reply#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 105
+      id: '1744093437470'
+      position:
+        x: 2450
+        y: 478.5
+      positionAbsolute:
+        x: 2450
+        y: 478.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 529cb46f-8572-45c0-8ef9-e945ddefd338
+          role: system
+          text: '##人设
+
+            你是一个资深本地化翻译，擅长将各种语言翻译成中文
+
+            ##背景
+
+            你正在为一个游戏的客服回复内容提供翻译
+
+            ##参考信息
+
+            这是玩家的原始客诉，你在翻译的时候可以参考：{{#conversation.original_customer_query#}}
+
+            ##目标
+
+            将接收到的任何语言内容翻译成中文，你只需要回复翻译后的中文，切忌冗余信息
+
+            ##特别注意
+
+            你只需要回复翻译后的中文，切忌冗余信息'
+        - id: c48dc627-793b-4082-8d1a-fe107379b5f8
+          role: user
+          text: '{{#1744083709745.text#}}'
+        selected: false
+        title: 中文_对话回复
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '1744093814895'
+      position:
+        x: 1543
+        y: 486
+      positionAbsolute:
+        x: 1543
+        y: 486
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: start with
+            id: de711d99-21d3-4738-a103-1df0d9570a42
+            value: 【工单】
+            varType: string
+            variable_selector:
+            - sys
+            - query
+          id: 'true'
+          logical_operator: and
+        - case_id: 127f4e4d-fb18-478b-83f2-70e5862c5fac
+          conditions:
+          - comparison_operator: start with
+            id: c7784ed0-3b1c-41ae-b3c1-8723e3a23e26
+            value: 【翻译成中文】
+            varType: string
+            variable_selector:
+            - sys
+            - query
+          id: 127f4e4d-fb18-478b-83f2-70e5862c5fac
+          logical_operator: and
+        - case_id: d8e95e5d-acf2-49d9-9f2c-49931b675ffc
+          conditions:
+          - comparison_operator: start with
+            id: 3b68c1b6-6489-4229-aa8e-3528cba2cb35
+            value: 【搜索】
+            varType: string
+            variable_selector:
+            - sys
+            - query
+          id: d8e95e5d-acf2-49d9-9f2c-49931b675ffc
+          logical_operator: and
+        - case_id: 7149177c-7089-4992-813f-3883b109cfb5
+          conditions:
+          - comparison_operator: contains
+            id: 3b466c3b-63b7-4cf9-a649-3ee85cda6d6b
+            value: 【翻译成源语言】
+            varType: string
+            variable_selector:
+            - sys
+            - query
+          id: 7149177c-7089-4992-813f-3883b109cfb5
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 功能拆分
+        type: if-else
+      height: 270
+      id: '1744097468737'
+      position:
+        x: 332
+        y: 334
+      positionAbsolute:
+        x: 332
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import re\nfrom typing import Dict\n\ndef main(text: str) -> Dict[str,\
+          \ str]:\n    processed_text = re.sub(r'^' + re.escape(\"【工单】\"), '', text)\n\
+          \    return {'result': processed_text}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 去标题【工单】
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: text
+      height: 54
+      id: '1744097711007'
+      position:
+        x: 649.454625936369
+        y: 334
+      positionAbsolute:
+        x: 649.454625936369
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: c508cf6a-19d0-40e2-879e-e203ce5438d2
+          role: system
+          text: '##人设
+
+            你是一个资深本地化翻译，擅长将各种语言翻译成中文
+
+            ##背景
+
+            你正在为一个游戏的客服回复内容提供翻译
+
+            ##参考信息
+
+            这是玩家的原始客诉，你在翻译的时候可以参考：{{#conversation.original_customer_query#}}（如为空请无视）
+
+            ##目标
+
+            将接收到的任何语言内容翻译成中文，你只需要回复翻译后的中文，切忌冗余信息
+
+            ##特别注意
+
+            你只需要回复翻译后的中文，切忌冗余信息'
+        - id: 76fad5bd-206e-44ad-9d70-59c8a683b935
+          role: user
+          text: '{{#1744098522609.result#}}'
+        selected: false
+        title: 对话翻译_中文
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '1744098515121'
+      position:
+        x: 936
+        y: 637.5
+      positionAbsolute:
+        x: 936
+        y: 637.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import re\nfrom typing import Dict\n\ndef main(text: str) -> Dict[str,\
+          \ str]:\n    processed_text = re.sub(r'^' + re.escape(\"【翻译成中文】\"), '',\
+          \ text)\n    return {'result': processed_text}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 去标题【翻译】
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: text
+      height: 54
+      id: '1744098522609'
+      position:
+        x: 649.454625936369
+        y: 453.0655668391033
+      positionAbsolute:
+        x: 649.454625936369
+        y: 453.0655668391033
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1744098515121.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 3
+        type: answer
+        variables: []
+      height: 105
+      id: '1744098681436'
+      position:
+        x: 1543
+        y: 614
+      positionAbsolute:
+        x: 1543
+        y: 614
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: 程序错误，请联系相关人员
+        desc: ''
+        selected: false
+        title: 不支持功能
+        type: answer
+        variables: []
+      height: 102
+      id: '1744098761417'
+      position:
+        x: 649.454625936369
+        y: 834.3454938778787
+      positionAbsolute:
+        x: 649.454625936369
+        y: 834.3454938778787
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - X8CN4Zj/bObVqMQB3GQX9VmD1/cV0ikyeEV45Ise80jvQPQzzM/XBpuR/kwY4yBt
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: langgenius/tongyi/tongyi
+          top_k: 4
+        query_variable_selector:
+        - '1744106313810'
+        - result
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索 2
+        type: knowledge-retrieval
+      height: 92
+      id: '1744106307634'
+      position:
+        x: 936
+        y: 866.5
+      positionAbsolute:
+        x: 936
+        y: 866.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import re\nfrom typing import Dict\n\ndef main(text: str) -> Dict[str,\
+          \ str]:\n    processed_text = re.sub(r'^' + re.escape(\"【搜索】\"), '', text)\n\
+          \    return {'result': processed_text}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 去标题【搜索】
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: text
+      height: 54
+      id: '1744106313810'
+      position:
+        x: 649.454625936369
+        y: 584.2795655069829
+      positionAbsolute:
+        x: 649.454625936369
+        y: 584.2795655069829
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        selected: false
+        template: "{% for item in text %}\n  {{ item.content | replace(';\"answer\"\
+          ', '\\nanswer') }}\n{% endfor %}\n"
+        title: 模板转换
+        type: template-transform
+        variables:
+        - value_selector:
+          - '1744106307634'
+          - result
+          variable: text
+      height: 54
+      id: '1744106445636'
+      position:
+        x: 1239
+        y: 867.5
+      positionAbsolute:
+        x: 1239
+        y: 867.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1744106445636.output#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 5
+        type: answer
+        variables: []
+      height: 105
+      id: '1744106527677'
+      position:
+        x: 1542
+        y: 815.9987336031755
+      positionAbsolute:
+        x: 1542
+        y: 815.9987336031755
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-v3
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 5186fe70-ed5a-45e2-8843-5c1cab6f8564
+          role: system
+          text: '##人设
+
+            你是一个资深本地化翻译，擅长将各种语言翻译成中文
+
+            ##背景
+
+            你正在为一个游戏的客服回复内容提供翻译
+
+            ##目标
+
+            将接收到的任何语言内容翻译成中文，你只需要回复翻译后的中文，切忌冗余信息
+
+            ##特别注意
+
+            你只需要回复翻译后的中文，切忌冗余信息'
+        - id: a6a32e54-0368-4c9d-aa01-de7d72398006
+          role: user
+          text: '{{#1744097711007.result#}}'
+        selected: false
+        title: 对话工单_翻译
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '1744273485895'
+      position:
+        x: 1846
+        y: 334
+      positionAbsolute:
+        x: 1846
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          label:
+            en_US: workflow_id
+            ja_JP: workflow_id
+            pt_BR: workflow_id
+            zh_Hans: workflow_id
+          llm_description: 工作流ID
+          max: null
+          min: null
+          name: workflow_id
+          options: []
+          placeholder:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          label:
+            en_US: conversation_id
+            ja_JP: conversation_id
+            pt_BR: conversation_id
+            zh_Hans: conversation_id
+          llm_description: 对话ID
+          max: null
+          min: null
+          name: conversation_id
+          options: []
+          placeholder:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 工单原文
+            ja_JP: 工单原文
+            pt_BR: 工单原文
+            zh_Hans: 工单原文
+          label:
+            en_US: ticket_content_original
+            ja_JP: ticket_content_original
+            pt_BR: ticket_content_original
+            zh_Hans: ticket_content_original
+          llm_description: 工单原文
+          max: null
+          min: null
+          name: ticket_content_original
+          options: []
+          placeholder:
+            en_US: 工单原文
+            ja_JP: 工单原文
+            pt_BR: 工单原文
+            zh_Hans: 工单原文
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 翻译后的中文内容
+            ja_JP: 翻译后的中文内容
+            pt_BR: 翻译后的中文内容
+            zh_Hans: 翻译后的中文内容
+          label:
+            en_US: ticket_content_translated
+            ja_JP: ticket_content_translated
+            pt_BR: ticket_content_translated
+            zh_Hans: ticket_content_translated
+          llm_description: 翻译后的中文内容
+          max: null
+          min: null
+          name: ticket_content_translated
+          options: []
+          placeholder:
+            en_US: 翻译后的中文内容
+            ja_JP: 翻译后的中文内容
+            pt_BR: 翻译后的中文内容
+            zh_Hans: 翻译后的中文内容
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 语言
+            ja_JP: 语言
+            pt_BR: 语言
+            zh_Hans: 语言
+          label:
+            en_US: language
+            ja_JP: language
+            pt_BR: language
+            zh_Hans: language
+          llm_description: 语言
+          max: null
+          min: null
+          name: language
+          options: []
+          placeholder:
+            en_US: 语言
+            ja_JP: 语言
+            pt_BR: 语言
+            zh_Hans: 语言
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          label:
+            en_US: user_id
+            ja_JP: user_id
+            pt_BR: user_id
+            zh_Hans: user_id
+          llm_description: 用户ID
+          max: null
+          min: null
+          name: user_id
+          options: []
+          placeholder:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          conversation_id: ''
+          language: ''
+          ticket_content_original: ''
+          ticket_content_translated: ''
+          user_id: ''
+          workflow_id: ''
+        provider_id: 13a3a5ff-05d6-4e03-8746-c2e5679d3e21
+        provider_name: 数据库
+        provider_type: api
+        selected: false
+        title: apiinsert_ticket_post
+        tool_configurations: {}
+        tool_label: apiinsert_ticket_post
+        tool_name: apiinsert_ticket_post
+        tool_parameters:
+          conversation_id:
+            type: mixed
+            value: '{{#sys.conversation_id#}}'
+          language:
+            type: mixed
+            value: '{{#llm.text#}}'
+          ticket_content_original:
+            type: mixed
+            value: '{{#sys.query#}}'
+          ticket_content_translated:
+            type: mixed
+            value: '{{#1744273485895.text#}}'
+          user_id:
+            type: mixed
+            value: '{{#sys.user_id#}}'
+          workflow_id:
+            type: mixed
+            value: '{{#sys.workflow_run_id#}}'
+        type: tool
+      height: 54
+      id: '1744800998877'
+      position:
+        x: 3356
+        y: 334
+      positionAbsolute:
+        x: 3356
+        y: 334
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          label:
+            en_US: workflow_id
+            ja_JP: workflow_id
+            pt_BR: workflow_id
+            zh_Hans: workflow_id
+          llm_description: 工作流ID
+          max: null
+          min: null
+          name: workflow_id
+          options: []
+          placeholder:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          label:
+            en_US: step_number
+            ja_JP: step_number
+            pt_BR: step_number
+            zh_Hans: step_number
+          llm_description: 步骤编号
+          max: null
+          min: null
+          name: step_number
+          options: []
+          placeholder:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          label:
+            en_US: ai_message
+            ja_JP: ai_message
+            pt_BR: ai_message
+            zh_Hans: ai_message
+          llm_description: AI消息
+          max: null
+          min: null
+          name: ai_message
+          options: []
+          placeholder:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          label:
+            en_US: ai_message_translated
+            ja_JP: ai_message_translated
+            pt_BR: ai_message_translated
+            zh_Hans: ai_message_translated
+          llm_description: AI消息翻译
+          max: null
+          min: null
+          name: ai_message_translated
+          options: []
+          placeholder:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          label:
+            en_US: customer_message
+            ja_JP: customer_message
+            pt_BR: customer_message
+            zh_Hans: customer_message
+          llm_description: 客服消息
+          max: null
+          min: null
+          name: customer_message
+          options: []
+          placeholder:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          label:
+            en_US: conversation_id
+            ja_JP: conversation_id
+            pt_BR: conversation_id
+            zh_Hans: conversation_id
+          llm_description: 对话ID
+          max: null
+          min: null
+          name: conversation_id
+          options: []
+          placeholder:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          label:
+            en_US: user_id
+            ja_JP: user_id
+            pt_BR: user_id
+            zh_Hans: user_id
+          llm_description: 用户ID
+          max: null
+          min: null
+          name: user_id
+          options: []
+          placeholder:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          ai_message: ''
+          ai_message_translated: ''
+          conversation_id: ''
+          customer_message: ''
+          step_number: ''
+          user_id: ''
+          workflow_id: ''
+        provider_id: 13a3a5ff-05d6-4e03-8746-c2e5679d3e21
+        provider_name: 数据库
+        provider_type: api
+        selected: false
+        title: apiinsert_ticket_workflow_post
+        tool_configurations: {}
+        tool_label: apiinsert_ticket_workflow_post
+        tool_name: apiinsert_ticket_workflow_post
+        tool_parameters:
+          ai_message:
+            type: mixed
+            value: '{{#1741859048627.text#}}'
+          ai_message_translated:
+            type: mixed
+            value: '{{#1741857216697.text#}}'
+          conversation_id:
+            type: mixed
+            value: '{{#sys.conversation_id#}}'
+          customer_message:
+            type: mixed
+            value: '{{#sys.query#}}'
+          step_number:
+            type: mixed
+            value: '{{#sys.dialogue_count#}}'
+          user_id:
+            type: mixed
+            value: '{{#sys.user_id#}}'
+          workflow_id:
+            type: mixed
+            value: '{{#sys.workflow_run_id#}}'
+        type: tool
+      height: 54
+      id: '1744801113750'
+      position:
+        x: 3656.6351009081936
+        y: 334
+      positionAbsolute:
+        x: 3656.6351009081936
+        y: 334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          label:
+            en_US: workflow_id
+            ja_JP: workflow_id
+            pt_BR: workflow_id
+            zh_Hans: workflow_id
+          llm_description: 工作流ID
+          max: null
+          min: null
+          name: workflow_id
+          options: []
+          placeholder:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          label:
+            en_US: step_number
+            ja_JP: step_number
+            pt_BR: step_number
+            zh_Hans: step_number
+          llm_description: 步骤编号
+          max: null
+          min: null
+          name: step_number
+          options: []
+          placeholder:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          label:
+            en_US: ai_message
+            ja_JP: ai_message
+            pt_BR: ai_message
+            zh_Hans: ai_message
+          llm_description: AI消息
+          max: null
+          min: null
+          name: ai_message
+          options: []
+          placeholder:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          label:
+            en_US: ai_message_translated
+            ja_JP: ai_message_translated
+            pt_BR: ai_message_translated
+            zh_Hans: ai_message_translated
+          llm_description: AI消息翻译
+          max: null
+          min: null
+          name: ai_message_translated
+          options: []
+          placeholder:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          label:
+            en_US: customer_message
+            ja_JP: customer_message
+            pt_BR: customer_message
+            zh_Hans: customer_message
+          llm_description: 客服消息
+          max: null
+          min: null
+          name: customer_message
+          options: []
+          placeholder:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          label:
+            en_US: conversation_id
+            ja_JP: conversation_id
+            pt_BR: conversation_id
+            zh_Hans: conversation_id
+          llm_description: 对话ID
+          max: null
+          min: null
+          name: conversation_id
+          options: []
+          placeholder:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          label:
+            en_US: user_id
+            ja_JP: user_id
+            pt_BR: user_id
+            zh_Hans: user_id
+          llm_description: 用户ID
+          max: null
+          min: null
+          name: user_id
+          options: []
+          placeholder:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          ai_message: ''
+          ai_message_translated: ''
+          conversation_id: ''
+          customer_message: ''
+          step_number: ''
+          user_id: ''
+          workflow_id: ''
+        provider_id: 13a3a5ff-05d6-4e03-8746-c2e5679d3e21
+        provider_name: 数据库
+        provider_type: api
+        selected: false
+        title: apiinsert_ticket_workflow_post
+        tool_configurations: {}
+        tool_label: apiinsert_ticket_workflow_post
+        tool_name: apiinsert_ticket_workflow_post
+        tool_parameters:
+          ai_message:
+            type: mixed
+            value: '{{#1744093814895.text#}}'
+          ai_message_translated:
+            type: mixed
+            value: '{{#1744083709745.text#}}'
+          conversation_id:
+            type: mixed
+            value: '{{#sys.conversation_id#}}'
+          customer_message:
+            type: mixed
+            value: '{{#sys.query#}}'
+          step_number:
+            type: mixed
+            value: '{{#sys.dialogue_count#}}'
+          user_id:
+            type: mixed
+            value: '{{#sys.user_id#}}'
+          workflow_id:
+            type: mixed
+            value: '{{#sys.workflow_run_id#}}'
+        type: tool
+      height: 54
+      id: '1744801296844'
+      position:
+        x: 2148
+        y: 544
+      positionAbsolute:
+        x: 2148
+        y: 544
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          label:
+            en_US: workflow_id
+            ja_JP: workflow_id
+            pt_BR: workflow_id
+            zh_Hans: workflow_id
+          llm_description: 工作流ID
+          max: null
+          min: null
+          name: workflow_id
+          options: []
+          placeholder:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          label:
+            en_US: step_number
+            ja_JP: step_number
+            pt_BR: step_number
+            zh_Hans: step_number
+          llm_description: 步骤编号
+          max: null
+          min: null
+          name: step_number
+          options: []
+          placeholder:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          label:
+            en_US: ai_message
+            ja_JP: ai_message
+            pt_BR: ai_message
+            zh_Hans: ai_message
+          llm_description: AI消息
+          max: null
+          min: null
+          name: ai_message
+          options: []
+          placeholder:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          label:
+            en_US: ai_message_translated
+            ja_JP: ai_message_translated
+            pt_BR: ai_message_translated
+            zh_Hans: ai_message_translated
+          llm_description: AI消息翻译
+          max: null
+          min: null
+          name: ai_message_translated
+          options: []
+          placeholder:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          label:
+            en_US: customer_message
+            ja_JP: customer_message
+            pt_BR: customer_message
+            zh_Hans: customer_message
+          llm_description: 客服消息
+          max: null
+          min: null
+          name: customer_message
+          options: []
+          placeholder:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          label:
+            en_US: conversation_id
+            ja_JP: conversation_id
+            pt_BR: conversation_id
+            zh_Hans: conversation_id
+          llm_description: 对话ID
+          max: null
+          min: null
+          name: conversation_id
+          options: []
+          placeholder:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          label:
+            en_US: user_id
+            ja_JP: user_id
+            pt_BR: user_id
+            zh_Hans: user_id
+          llm_description: 用户ID
+          max: null
+          min: null
+          name: user_id
+          options: []
+          placeholder:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          ai_message: ''
+          ai_message_translated: ''
+          conversation_id: ''
+          customer_message: ''
+          step_number: ''
+          user_id: ''
+          workflow_id: ''
+        provider_id: 13a3a5ff-05d6-4e03-8746-c2e5679d3e21
+        provider_name: 数据库
+        provider_type: api
+        selected: false
+        title: apiinsert_ticket_workflow_post
+        tool_configurations: {}
+        tool_label: apiinsert_ticket_workflow_post
+        tool_name: apiinsert_ticket_workflow_post
+        tool_parameters:
+          ai_message:
+            type: mixed
+            value: '{{#1744098515121.text#}}'
+          ai_message_translated:
+            type: mixed
+            value: ''
+          conversation_id:
+            type: mixed
+            value: '{{#sys.conversation_id#}}'
+          customer_message:
+            type: mixed
+            value: '{{#sys.query#}}'
+          step_number:
+            type: mixed
+            value: '{{#sys.dialogue_count#}}'
+          user_id:
+            type: mixed
+            value: '{{#sys.user_id#}}'
+          workflow_id:
+            type: mixed
+            value: '{{#sys.workflow_run_id#}}'
+        type: tool
+      height: 54
+      id: '1744801395525'
+      position:
+        x: 1239
+        y: 637.5
+      positionAbsolute:
+        x: 1239
+        y: 637.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import re\nfrom typing import Dict\n\ndef main(text: str) -> Dict[str,\
+          \ str]:\n    processed_text = re.sub(r'^' + re.escape(\"【翻译成源语言】\"), '',\
+          \ text)\n    return {'result': processed_text}\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: '去标题【翻译源语言】 '
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: text
+      height: 54
+      id: '17446130571730'
+      position:
+        x: 649.454625936369
+        y: 704.9950114873135
+      positionAbsolute:
+        x: 649.454625936369
+        y: 704.9950114873135
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-2.0-pro-exp-02-05
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: c508cf6a-19d0-40e2-879e-e203ce5438d2
+          role: system
+          text: '##人设
+
+            你是一个资深本地化翻译，擅长将各种语言翻译成{{#conversation.original_customer_language#}}
+
+            ##背景
+
+            你正在为一个游戏的客服回复内容提供翻译
+
+            ##参考信息
+
+            这是玩家的原始客诉，你在翻译的时候可以参考：{{#conversation.original_customer_query#}}（如为空请无视）
+
+            ##目标
+
+            将接收到的任何语言内容翻译成{{#conversation.original_customer_language#}}，你只需要回复翻译后的语言，切忌冗余信息
+
+            ##特别注意
+
+            你只需要回复翻译后的{{#conversation.original_customer_language#}}，切忌冗余信息'
+        - id: 76fad5bd-206e-44ad-9d70-59c8a683b935
+          role: user
+          text: '{{#17446130571730.result#}}'
+        selected: false
+        title: 对话翻译_源语言
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '17446130935610'
+      position:
+        x: 936
+        y: 1009.5
+      positionAbsolute:
+        x: 936
+        y: 1009.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          label:
+            en_US: workflow_id
+            ja_JP: workflow_id
+            pt_BR: workflow_id
+            zh_Hans: workflow_id
+          llm_description: 工作流ID
+          max: null
+          min: null
+          name: workflow_id
+          options: []
+          placeholder:
+            en_US: 工作流ID
+            ja_JP: 工作流ID
+            pt_BR: 工作流ID
+            zh_Hans: 工作流ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          label:
+            en_US: step_number
+            ja_JP: step_number
+            pt_BR: step_number
+            zh_Hans: step_number
+          llm_description: 步骤编号
+          max: null
+          min: null
+          name: step_number
+          options: []
+          placeholder:
+            en_US: 步骤编号
+            ja_JP: 步骤编号
+            pt_BR: 步骤编号
+            zh_Hans: 步骤编号
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          label:
+            en_US: ai_message
+            ja_JP: ai_message
+            pt_BR: ai_message
+            zh_Hans: ai_message
+          llm_description: AI消息
+          max: null
+          min: null
+          name: ai_message
+          options: []
+          placeholder:
+            en_US: AI消息
+            ja_JP: AI消息
+            pt_BR: AI消息
+            zh_Hans: AI消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          label:
+            en_US: ai_message_translated
+            ja_JP: ai_message_translated
+            pt_BR: ai_message_translated
+            zh_Hans: ai_message_translated
+          llm_description: AI消息翻译
+          max: null
+          min: null
+          name: ai_message_translated
+          options: []
+          placeholder:
+            en_US: AI消息翻译
+            ja_JP: AI消息翻译
+            pt_BR: AI消息翻译
+            zh_Hans: AI消息翻译
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          label:
+            en_US: customer_message
+            ja_JP: customer_message
+            pt_BR: customer_message
+            zh_Hans: customer_message
+          llm_description: 客服消息
+          max: null
+          min: null
+          name: customer_message
+          options: []
+          placeholder:
+            en_US: 客服消息
+            ja_JP: 客服消息
+            pt_BR: 客服消息
+            zh_Hans: 客服消息
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          label:
+            en_US: conversation_id
+            ja_JP: conversation_id
+            pt_BR: conversation_id
+            zh_Hans: conversation_id
+          llm_description: 对话ID
+          max: null
+          min: null
+          name: conversation_id
+          options: []
+          placeholder:
+            en_US: 对话ID
+            ja_JP: 对话ID
+            pt_BR: 对话ID
+            zh_Hans: 对话ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          label:
+            en_US: user_id
+            ja_JP: user_id
+            pt_BR: user_id
+            zh_Hans: user_id
+          llm_description: 用户ID
+          max: null
+          min: null
+          name: user_id
+          options: []
+          placeholder:
+            en_US: 用户ID
+            ja_JP: 用户ID
+            pt_BR: 用户ID
+            zh_Hans: 用户ID
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          ai_message: ''
+          ai_message_translated: ''
+          conversation_id: ''
+          customer_message: ''
+          step_number: ''
+          user_id: ''
+          workflow_id: ''
+        provider_id: 13a3a5ff-05d6-4e03-8746-c2e5679d3e21
+        provider_name: 数据库
+        provider_type: api
+        selected: false
+        title: apiinsert_ticket_workflow_post
+        tool_configurations: {}
+        tool_label: apiinsert_ticket_workflow_post
+        tool_name: apiinsert_ticket_workflow_post
+        tool_parameters:
+          ai_message:
+            type: mixed
+            value: '{{#17446130935610.text#}}'
+          ai_message_translated:
+            type: mixed
+            value: ''
+          conversation_id:
+            type: mixed
+            value: '{{#sys.conversation_id#}}'
+          customer_message:
+            type: mixed
+            value: '{{#sys.query#}}'
+          step_number:
+            type: mixed
+            value: '{{#sys.dialogue_count#}}'
+          user_id:
+            type: mixed
+            value: '{{#sys.user_id#}}'
+          workflow_id:
+            type: mixed
+            value: '{{#sys.workflow_run_id#}}'
+        type: tool
+      height: 54
+      id: '1744801510601'
+      position:
+        x: 1239
+        y: 1009.5
+      positionAbsolute:
+        x: 1239
+        y: 1009.5
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#17446130935610.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 3 (1)
+        type: answer
+        variables: []
+      height: 105
+      id: '17446132257240'
+      position:
+        x: 1542
+        y: 988.0289007294423
+      positionAbsolute:
+        x: 1542
+        y: 988.0289007294423
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 68.97364503749645
+      y: 59.70735563542985
+      zoom: 0.6603055625293696
