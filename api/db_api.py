@@ -118,8 +118,19 @@ def insert_ticket():
     language = request.args.get('language')
     user_id = request.args.get('user_id')
 
+    # 日志：打印所有参数
+    print("[insert_ticket] 参数：", {
+        "workflow_id": workflow_id,
+        "conversation_id": conversation_id,
+        "ticket_content_original": ticket_content_original,
+        "ticket_content_translated": ticket_content_translated,
+        "language": language,
+        "user_id": user_id
+    })
+
     # 验证必需参数
     if not all([workflow_id, conversation_id, ticket_content_original, ticket_content_translated, language, user_id]):
+        print("[insert_ticket] 缺少参数")
         return jsonify({"error": "Missing required parameters"}), 400
 
     # 数据库连接
@@ -127,6 +138,15 @@ def insert_ticket():
     cursor = connection.cursor()
 
     try:
+        # 日志：准备插入的数据
+        print("[insert_ticket] 即将插入数据库的数据：", (
+            workflow_id,
+            conversation_id,
+            ticket_content_original,
+            ticket_content_translated,
+            language,
+            user_id
+        ))
         # 插入数据
         insert_query = """
         INSERT INTO tickets (
@@ -148,8 +168,10 @@ def insert_ticket():
             user_id
         ))
         connection.commit()
+        print("[insert_ticket] 插入成功")
         return jsonify({"message": "Ticket inserted successfully"}), 201
     except mysql.connector.Error as err:
+        print("[insert_ticket] 数据库异常：", str(err))
         return jsonify({"error": str(err)}), 500
     finally:
         cursor.close()
@@ -166,8 +188,20 @@ def insert_ticket_workflow():
     conversation_id = request.args.get('conversation_id')
     user_id = request.args.get('user_id')
 
+    # 日志：打印所有参数
+    print("[insert_ticket_workflow] 参数：", {
+        "workflow_id": workflow_id,
+        "step_number": step_number,
+        "ai_message": ai_message,
+        "ai_message_translated": ai_message_translated,
+        "customer_message": customer_message,
+        "conversation_id": conversation_id,
+        "user_id": user_id
+    })
+
     # 验证必需参数
     if not all([workflow_id, step_number, conversation_id, user_id]):
+        print("[insert_ticket_workflow] 缺少参数")
         return jsonify({"error": "Missing required parameters"}), 400
 
     # 数据库连接
@@ -175,6 +209,16 @@ def insert_ticket_workflow():
     cursor = connection.cursor()
 
     try:
+        # 日志：准备插入的数据
+        print("[insert_ticket_workflow] 即将插入数据库的数据：", (
+            workflow_id,
+            step_number,
+            ai_message,
+            ai_message_translated,
+            customer_message,
+            conversation_id,
+            user_id
+        ))
         # 插入数据
         insert_query = """
         INSERT INTO tickets_workflows (
@@ -198,8 +242,10 @@ def insert_ticket_workflow():
             user_id
         ))
         connection.commit()
+        print("[insert_ticket_workflow] 插入成功")
         return jsonify({"message": "Ticket workflow inserted successfully"}), 201
     except mysql.connector.Error as err:
+        print("[insert_ticket_workflow] 数据库异常：", str(err))
         return jsonify({"error": str(err)}), 500
     finally:
         cursor.close()
