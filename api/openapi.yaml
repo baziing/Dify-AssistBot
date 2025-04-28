@@ -3,7 +3,7 @@ info:
   title: 工单 API
   version: 1.0.0
 servers:
-  - url: http://192.168.111.225:5003
+  - url: http://192.168.111.96:5003
 paths:
   /api/get_ticket_by_workflow_id:
     get:
@@ -77,43 +77,38 @@ paths:
     post:
       summary: 插入工单
       description: 插入新的工单记录到数据库
-      parameters:
-        - name: workflow_id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 工作流ID
-        - name: conversation_id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 对话ID
-        - name: ticket_content_original
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 工单原文
-        - name: ticket_content_translated
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 翻译后的中文内容
-        - name: language
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 语言
-        - name: user_id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 用户ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workflow_id:
+                  type: string
+                  description: 工作流ID
+                conversation_id:
+                  type: string
+                  description: 对话ID
+                ticket_content_original:
+                  type: string
+                  description: 工单原文
+                ticket_content_translated:
+                  type: string
+                  description: 翻译后的中文内容
+                language:
+                  type: string
+                  description: 语言
+                user_id:
+                  type: string
+                  description: 用户ID
+              required:
+                - workflow_id
+                - conversation_id
+                - ticket_content_original
+                - ticket_content_translated
+                - language
+                - user_id
       responses:
         '201':
           description: 成功插入工单
@@ -150,49 +145,39 @@ paths:
     post:
       summary: 插入工单工作流
       description: 插入新的工单工作流记录到数据库
-      parameters:
-        - name: workflow_id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 工作流ID
-        - name: step_number
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 步骤编号
-        - name: ai_message
-          in: query
-          required: false
-          schema:
-            type: string
-          description: AI消息
-        - name: ai_message_translated
-          in: query
-          required: false
-          schema:
-            type: string
-          description: AI消息翻译
-        - name: customer_message
-          in: query
-          required: false
-          schema:
-            type: string
-          description: 客服消息
-        - name: conversation_id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 对话ID
-        - name: user_id
-          in: query
-          required: true
-          schema:
-            type: string
-          description: 用户ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workflow_id:
+                  type: string
+                  description: 工作流ID
+                step_number:
+                  type: string
+                  description: 步骤编号
+                ai_message:
+                  type: string
+                  description: AI消息
+                ai_message_translated:
+                  type: string
+                  description: AI消息翻译
+                customer_message:
+                  type: string
+                  description: 客服消息
+                conversation_id:
+                  type: string
+                  description: 对话ID
+                user_id:
+                  type: string
+                  description: 用户ID
+              required:
+                - workflow_id
+                - step_number
+                - conversation_id
+                - user_id
       responses:
         '201':
           description: 成功插入工单工作流

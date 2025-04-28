@@ -1,9 +1,10 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from api.db_api import db_api
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import mysql.connector
 
 # 获取项目根目录
 ROOT_DIR = Path(__file__).parent

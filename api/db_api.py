@@ -110,15 +110,14 @@ def get_ticket_by_conversation_id():
 
 @db_api.route('/insert_ticket', methods=['POST'])
 def insert_ticket():
-    # 从URL参数获取数据
-    workflow_id = request.args.get('workflow_id')
-    conversation_id = request.args.get('conversation_id')
-    ticket_content_original = request.args.get('ticket_content_original')
-    ticket_content_translated = request.args.get('ticket_content_translated')
-    language = request.args.get('language')
-    user_id = request.args.get('user_id')
+    data = request.get_json(silent=True) or {}
+    workflow_id = data.get('workflow_id') or request.args.get('workflow_id')
+    conversation_id = data.get('conversation_id') or request.args.get('conversation_id')
+    ticket_content_original = data.get('ticket_content_original') or request.args.get('ticket_content_original')
+    ticket_content_translated = data.get('ticket_content_translated') or request.args.get('ticket_content_translated')
+    language = data.get('language') or request.args.get('language')
+    user_id = data.get('user_id') or request.args.get('user_id')
 
-    # 日志：打印所有参数
     print("[insert_ticket] 参数：", {
         "workflow_id": workflow_id,
         "conversation_id": conversation_id,
@@ -128,7 +127,6 @@ def insert_ticket():
         "user_id": user_id
     })
 
-    # 验证必需参数
     if not all([workflow_id, conversation_id, ticket_content_original, ticket_content_translated, language, user_id]):
         print("[insert_ticket] 缺少参数")
         return jsonify({"error": "Missing required parameters"}), 400
@@ -179,16 +177,15 @@ def insert_ticket():
 
 @db_api.route('/insert_ticket_workflow', methods=['POST'])
 def insert_ticket_workflow():
-    # 从URL参数获取数据
-    workflow_id = request.args.get('workflow_id')
-    step_number = request.args.get('step_number')
-    ai_message = request.args.get('ai_message')
-    ai_message_translated = request.args.get('ai_message_translated')
-    customer_message = request.args.get('customer_message')
-    conversation_id = request.args.get('conversation_id')
-    user_id = request.args.get('user_id')
+    data = request.get_json(silent=True) or {}
+    workflow_id = data.get('workflow_id') or request.args.get('workflow_id')
+    step_number = data.get('step_number') or request.args.get('step_number')
+    ai_message = data.get('ai_message') or request.args.get('ai_message')
+    ai_message_translated = data.get('ai_message_translated') or request.args.get('ai_message_translated')
+    customer_message = data.get('customer_message') or request.args.get('customer_message')
+    conversation_id = data.get('conversation_id') or request.args.get('conversation_id')
+    user_id = data.get('user_id') or request.args.get('user_id')
 
-    # 日志：打印所有参数
     print("[insert_ticket_workflow] 参数：", {
         "workflow_id": workflow_id,
         "step_number": step_number,
@@ -199,7 +196,6 @@ def insert_ticket_workflow():
         "user_id": user_id
     })
 
-    # 验证必需参数
     if not all([workflow_id, step_number, conversation_id, user_id]):
         print("[insert_ticket_workflow] 缺少参数")
         return jsonify({"error": "Missing required parameters"}), 400
@@ -209,7 +205,6 @@ def insert_ticket_workflow():
     cursor = connection.cursor()
 
     try:
-        # 日志：准备插入的数据
         print("[insert_ticket_workflow] 即将插入数据库的数据：", (
             workflow_id,
             step_number,
@@ -219,7 +214,6 @@ def insert_ticket_workflow():
             conversation_id,
             user_id
         ))
-        # 插入数据
         insert_query = """
         INSERT INTO tickets_workflows (
             workflow_id,
