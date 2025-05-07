@@ -10,11 +10,11 @@ interface QAResult {
   answer: string;
 }
 
-interface SearchToolProps {
-  onReset: () => void;
-}
+// interface SearchToolProps { // Removed as it's unused
+//   // onReset: () => void; 
+// }
 
-export function SearchTool({ onReset }: SearchToolProps) {
+export function SearchTool() { // Removed props as they are unused
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<QAResult[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -300,4 +300,4 @@ export function SearchTool({ onReset }: SearchToolProps) {
       )}
     </div>
   );
-} 
+}

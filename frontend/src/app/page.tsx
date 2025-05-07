@@ -1,19 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { TicketContent } from '@/components/TicketContent';
 import { ChatInterface } from '@/components/ChatInterface';
 import { TranslationTool } from '@/components/TranslationTool';
-import { TranslationMessage } from '@/components/TranslationMessage';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Languages, Search } from 'lucide-react';
 import { sendMessageToDify } from '@/services/dify';
 import { 
-  getTicketByWorkflowId, 
   insertTicket, 
-  insertTicketWorkflow, 
-  getTicketByConversationId,
-  getWorkflowTranslation 
+  getTicketByConversationId
 } from '@/services/api';
 import { generateWorkflowId as generateUUID } from '@/utils/workflow';
 import { SearchTool } from '@/components/SearchTool';
@@ -24,6 +20,7 @@ interface Message {
   translated?: string;
   isLoading?: boolean;
   stepNumber?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   variables?: Record<string, any>;
 }
 
@@ -36,9 +33,9 @@ export default function Home() {
     original?: string;
     translated?: string;
   }>({});
-  const [workflowId, setWorkflowId] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setWorkflowId] = useState<string>(''); // workflowId is assigned but never used
+  // const [, setIsLoading] = useState(false); // setIsLoading is assigned but never used
+  const [, setError] = useState<string | null>(null); // error is assigned but never used
   const [showSearch, setShowSearch] = useState(false);
 
   const handleSendMessage = async (content: string) => {
@@ -166,75 +163,64 @@ export default function Home() {
     }
   };
 
-  // 从AI回复中提取工作流ID
-  const extractWorkflowIdFromResponse = (response: string): string | null => {
-    // 这里需要根据实际情况调整提取逻辑
-    // 例如，如果AI回复中包含"工作流ID: 123456"这样的格式
-    const match = response.match(/工作流ID:\s*(\w+)/i);
-    return match ? match[1] : null;
-  };
-
-  const handleTranslate = async (content: string, messageIndex: number) => {
-    // 获取要翻译的消息
-    const targetMessage = messages[messageIndex];
-    if (!targetMessage) {
-      console.error('No message found');
-      return;
-    }
-
-    // 添加AI助手的加载消息
-    const loadingMessage: Message = {
-      role: 'assistant',
-      content: '正在获取翻译...',
-      isLoading: true,
-      stepNumber: targetMessage.stepNumber
-    };
-    setMessages(prev => [...prev, loadingMessage]);
-
-    try {
-      if (!conversationId) {
-        throw new Error('No conversation ID available');
-      }
-
-      // 从数据库获取翻译，使用消息内容而不是stepNumber
-      const translation = await getWorkflowTranslation(conversationId, content);
+  // const handleTranslate = async (content: string, messageIndex: number) => { // Removed as unused
+  //   // 获取要翻译的消息
+  //   const targetMessage = messages[messageIndex];
+  //   if (!targetMessage) {
+  //     console.error('No message found');
+  //     return;
+  //   }
+  //   // 添加AI助手的加载消息
+  //   const loadingMessage: Message = {
+  //     role: 'assistant',
+  //     content: '正在获取翻译...',
+  //     isLoading: true,
+  //     stepNumber: targetMessage.stepNumber
+  //   };
+  //   setMessages(prev => [...prev, loadingMessage]);
+  //   try {
+  //     if (!conversationId) {
+  //       throw new Error('No conversation ID available');
+  //     }
+  //     // 从数据库获取翻译，使用消息内容而不是stepNumber
+  //     const translation = await getWorkflowTranslation(conversationId, content);
       
-      // 移除加载消息
-      setMessages(prev => {
-        const newMessages = prev.slice(0, -1); // 移除加载消息
-        if (translation) {
-          // 如果找到了翻译，添加为新的消息，使用 TranslationMessage 组件
-          return [...newMessages, {
-            role: 'assistant',
-            content: JSON.stringify({
-              type: 'translation',
-              original: content,
-              translation: translation
-            }),
-            stepNumber: targetMessage.stepNumber
-          }];
-        } else {
-          // 如果没有找到翻译，显示错误消息
-          return [...newMessages, {
-            role: 'assistant',
-            content: '未找到对应的翻译内容。',
-            stepNumber: targetMessage.stepNumber
-          }];
-        }
-      });
-    } catch (error) {
-      console.error('Error getting translation:', error);
-      // 显示错误消息
-      setMessages(prev => {
-        const newMessages = prev.slice(0, -1); // 移除加载消息
-        return [...newMessages, {
-          role: 'assistant',
-          content: '获取翻译失败，请稍后重试。',
-          stepNumber: targetMessage.stepNumber
-        }];
-      });
-    }
-  };
+  //     // 移除加载消息
+  //     setMessages(prev => {
+  //       const newMessages = prev.slice(0, -1); // 移除加载消息
+  //       if (translation) {
+  //         // 如果找到了翻译，添加为新的消息，使用 TranslationMessage 组件
+  //         return [...newMessages, {
+  //           role: 'assistant',
+  //           content: JSON.stringify({
+  //             type: 'translation',
+  //             original: content,
+  //             translation: translation
+  //           }),
+  //           stepNumber: targetMessage.stepNumber
+  //         }];
+  //       } else {
+  //         // 如果没有找到翻译，显示错误消息
+  //         return [...newMessages, {
+  //           role: 'assistant',
+  //           content: '未找到对应的翻译内容。',
+  //           stepNumber: targetMessage.stepNumber
+  //         }];
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error('Error getting translation:', error);
+  //     // 显示错误消息
+  //     setMessages(prev => {
+  //       const newMessages = prev.slice(0, -1); // 移除加载消息
+  //       return [...newMessages, {
+  //         role: 'assistant',
+  //         content: '获取翻译失败，请稍后重试。',
+  //         stepNumber: targetMessage.stepNumber
+  //       }];
+  //     });
+  //   }
+  // };
 
   const handleNewChat = () => {
     setMessages([]);
@@ -316,7 +302,6 @@ export default function Home() {
           <ChatInterface
             messages={messages}
             onSendMessage={handleSendMessage}
-            onTranslate={handleTranslate}
             conversationId={conversationId}
             setMessages={setMessages}
           />
@@ -337,9 +322,7 @@ export default function Home() {
           />
         )}
         {showSearch && (
-          <SearchTool
-            onReset={handleNewChat}
-          />
+          <SearchTool />
         )}
       </div>
     </main>

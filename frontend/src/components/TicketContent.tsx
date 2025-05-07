@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { MessageSquare, ChevronDown, ChevronUp, Globe2 } from 'lucide-react';
+import { MessageSquare, Globe2 } from 'lucide-react';
 import { getLanguageDisplay } from '@/config/languages';
 
 interface TicketContentProps {
@@ -11,7 +11,7 @@ interface TicketContentProps {
 
 export function TicketContent({ originalContent, translatedContent, language }: TicketContentProps) {
   const [showOriginal, setShowOriginal] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  // const [isExpanded, setIsExpanded] = useState(false); // Removed as unused
   // 新增：图片预览弹窗状态
   const [previewImg, setPreviewImg] = useState<string | null>(null);
 
@@ -23,7 +23,7 @@ export function TicketContent({ originalContent, translatedContent, language }: 
 
   const hasContent = Boolean(originalContent || translatedContent);
   const currentContent = showOriginal ? processOriginalContent(originalContent) : translatedContent;
-  const hasMoreContent = currentContent && (currentContent.split('\n').length > 3 || currentContent.length > 200);
+  // const hasMoreContent = currentContent && (currentContent.split('\n').length > 3 || currentContent.length > 200); // Removed as unused
 
   // 新增：尝试将内容解析为JSON数组（兼容 text 字段为对象字符串的情况，做简单粗暴的替换）
   let messageList: { text?: string; picture?: string; role?: string }[] = [];
@@ -37,10 +37,10 @@ export function TicketContent({ originalContent, translatedContent, language }: 
     try {
       // 先直接尝试 parse
       messageList = JSON.parse(currentContent);
-    } catch (e) {
+    } catch { // _e is declared but its value is never read.
       // 如果失败，再做粗暴替换兜底
       try {
-        let fixed = currentContent
+        const fixed = currentContent
           .replace(/"text":"\{/g, '"text":{')
           .replace(/}\",\"picture\"/g, '},"picture"');
         messageList = JSON.parse(fixed);
@@ -55,15 +55,16 @@ export function TicketContent({ originalContent, translatedContent, language }: 
   // 处理 text 字段为对象字符串的情况（支持多key多气泡）
   function parseTextToBubbles(text?: string | object) {
     if (!text) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let obj: any = undefined;
     // 如果本身就是对象
     if (typeof text === 'object' && text !== null) {
       obj = text;
     } else if (typeof text === 'string' && text.trim().startsWith('{') && text.trim().endsWith('}')) {
       try {
-        let fixed = text.replace(/([{,])"([^",]+)":/g, '$1"$2":');
+        const fixed = text.replace(/([{,])"([^",]+)":/g, '$1"$2":');
         obj = JSON.parse(fixed);
-      } catch (e) {}
+      } catch {} // _e is declared but its value is never read.
     }
     if (obj && typeof obj === 'object') {
       // 多key时每个key-value单独气泡
@@ -189,4 +190,4 @@ export function TicketContent({ originalContent, translatedContent, language }: 
       )}
     </div>
   );
-} 
+}

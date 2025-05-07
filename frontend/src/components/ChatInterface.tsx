@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Card } from './ui/card';
 import { Send, Bot, User, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
-import { TranslationMessage } from './TranslationMessage';
 import { getWorkflowTranslation } from '@/services/api';
 
 interface Message {
@@ -22,7 +20,7 @@ interface Message {
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (content: string) => void;
-  onTranslate: (content: string, messageIndex: number) => void;
+  // onTranslate: (content: string, messageIndex: number) => void; // Removed as it's unused
   conversationId?: string;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
@@ -30,7 +28,7 @@ interface ChatInterfaceProps {
 export function ChatInterface({ 
   messages, 
   onSendMessage, 
-  onTranslate, 
+  // onTranslate, // Removed as it's unused
   conversationId,
   setMessages 
 }: ChatInterfaceProps) {
@@ -268,6 +266,7 @@ export function ChatInterface({
                 className="min-h-[60px] max-h-[90px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-4"
                 onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
                   // 如果是正在使用输入法，不处理 Enter 键
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   if ((e.nativeEvent as any).isComposing || e.keyCode === 229) {
                     return;
                   }

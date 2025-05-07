@@ -1,13 +1,7 @@
 import axios from 'axios';
-import { getWorkflowTranslation } from './api';
 
 const DIFY_API_KEY = process.env.NEXT_PUBLIC_DIFY_API_KEY;
 const DIFY_API_ENDPOINT = process.env.NEXT_PUBLIC_DIFY_API_ENDPOINT;
-
-interface DifyMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
 
 interface DifyResponse {
   answer: string;

@@ -11,10 +11,12 @@ interface TranslationToolProps {
   conversationId?: string;
 }
 
-export const TranslationTool = forwardRef<{ resetTool: () => void }, TranslationToolProps>(
-  ({ detectedLanguage, onReset, conversationId }, ref) => {
-    const [sourceText, setSourceText] = useState('');
-    const [translatedText, setTranslatedText] = useState('');
+export const TranslationTool = forwardRef<
+  { resetTool: () => void },
+  TranslationToolProps
+>(function TranslationToolComponent({ detectedLanguage, onReset, conversationId }, ref) {
+  const [sourceText, setSourceText] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
     const [sourceLanguage, setSourceLanguage] = useState('zh');
     const [targetLanguage, setTargetLanguage] = useState('auto');
     const [isTranslating, setIsTranslating] = useState(false);
@@ -54,15 +56,6 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
       setTranslatedText(sourceText);
     };
 
-    // 重置工具
-    const handleReset = () => {
-      setSourceText('');
-      setTranslatedText('');
-      setSourceLanguage('zh');
-      setTargetLanguage('auto');
-      onReset();
-    };
-
     // 暴露重置方法给父组件
     useImperativeHandle(ref, () => ({
       resetTool: () => {
@@ -70,6 +63,7 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
         setTranslatedText('');
         setSourceLanguage('zh');
         setTargetLanguage('auto');
+        onReset();
       }
     }));
 
@@ -139,4 +133,4 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
       </div>
     );
   }
-); 
+);
