@@ -98,8 +98,10 @@ export function TicketContent({ originalContent, translatedContent, language }: 
             {messageList.length > 0 ? (
               messageList.map((msg, idx) => {
                 const bubbles = parseTextToBubbles(msg.text);
-                // 如果 text 为空，只显示图片
-                if (bubbles.length === 1 && !bubbles[0].value) {
+                const isEmptyText = !bubbles[0] || !bubbles[0].value || String(bubbles[0].value).trim() === '';
+                const isEmptyPic = !msg.picture || msg.picture.trim() === '';
+                // 新增：如果 bubbles 为空但有图片，也渲染图片气泡
+                if ((bubbles.length === 0 || isEmptyText) && !isEmptyPic) {
                   return (
                     <div key={idx} className="self-start max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words">
                       {msg.picture && msg.picture.split(';').map((url, i) => {
@@ -113,6 +115,9 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                       })}
                     </div>
                   );
+                }
+                if (isEmptyText && isEmptyPic) {
+                  return null;
                 }
                 // 否则每个 key-value 单独显示，图片只显示一次
                 return bubbles.map((bubble, bidx) => (
