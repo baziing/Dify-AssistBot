@@ -48,6 +48,7 @@ export function TicketContent({ originalContent, translatedContent, language }: 
         messageList = [];
         console.error('TicketContent JSON parse error:', e2);
       }
+
     }
   }
 
@@ -71,6 +72,10 @@ export function TicketContent({ originalContent, translatedContent, language }: 
     // 不是对象时，原样返回
     return [{ value: text }];
   }
+
+  const bubbleBase = "max-w-[90%] px-4 py-2 text-sm shadow-sm whitespace-pre-wrap break-words rounded-xl";
+  const customerBubble = "self-start bg-white border border-gray-200 text-gray-700 rounded-bl-2xl";
+  const supportBubble = "self-end bg-gray-100 text-gray-700 border border-gray-200 rounded-br-2xl";
 
   return (
     <div className="bg-gray-50 flex flex-col h-full">
@@ -136,7 +141,10 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                 }
                 // 新：所有key-value放在同一个气泡，key灰色加粗，key-value对换行，图片在下方
                 return (
-                  <div key={idx} className={`${bubbleAlign} max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words`}>
+                  <div
+                    key={idx}
+                    className={`${bubbleBase} ${isCustomer ? customerBubble : supportBubble}`}
+                  >
                     {bubbles.map((bubble, bidx) => (
                       <div key={bidx} className="mb-2">
                         {'key' in bubble && bubble.key && (
