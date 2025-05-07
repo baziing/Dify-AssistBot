@@ -189,7 +189,7 @@ export function ChatInterface({
                 {message.role === 'assistant' && (
                   <div className="space-y-2">
                     <div className="text-gray-900 relative group">
-                      <pre className="font-sans text-inherit whitespace-pre-wrap">
+                      <pre className="font-sans text-inherit whitespace-pre-wrap break-words">
                         {message.content}
                       </pre>
                       <button
@@ -243,7 +243,7 @@ export function ChatInterface({
                 )}
                 {message.role === 'user' && (
                   <div className="prose prose-sm max-w-none text-gray-600">
-                    <pre className="font-sans text-inherit whitespace-pre-wrap">{message.content}</pre>
+                    <pre className="font-sans text-inherit whitespace-pre-wrap break-words">{message.content}</pre>
                   </div>
                 )}
                 {message.isLoading && (

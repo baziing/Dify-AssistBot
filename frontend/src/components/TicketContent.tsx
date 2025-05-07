@@ -28,7 +28,6 @@ export function TicketContent({ originalContent, translatedContent, language }: 
   // 新增：尝试将内容解析为JSON数组（兼容 text 字段为对象字符串的情况，做简单粗暴的替换）
   let messageList: { text?: string; picture?: string }[] = [];
   if (Array.isArray(currentContent)) {
-    // 已经是对象数组，直接用
     messageList = currentContent;
   } else if (
     typeof currentContent === 'string' &&
@@ -36,14 +35,19 @@ export function TicketContent({ originalContent, translatedContent, language }: 
     currentContent.trim().endsWith(']')
   ) {
     try {
-      // 简单粗暴替换，兼容后端 text 字段为对象字符串但未转义的情况
-      let fixed = currentContent
-        .replace(/"text":"\{/g, '"text":{')
-        .replace(/}\",\"picture\"/g, '},"picture"');
-      messageList = JSON.parse(fixed);
+      // 先直接尝试 parse
+      messageList = JSON.parse(currentContent);
     } catch (e) {
-      messageList = [];
-      console.error('TicketContent JSON parse error:', e);
+      // 如果失败，再做粗暴替换兜底
+      try {
+        let fixed = currentContent
+          .replace(/"text":"\{/g, '"text":{')
+          .replace(/}\",\"picture\"/g, '},"picture"');
+        messageList = JSON.parse(fixed);
+      } catch (e2) {
+        messageList = [];
+        console.error('TicketContent JSON parse error:', e2);
+      }
     }
   }
 
