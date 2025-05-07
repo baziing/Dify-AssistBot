@@ -254,7 +254,16 @@ export default function Home() {
 
   return (
     <main className="h-screen flex bg-gray-50 relative overflow-hidden">
-      <div className={`flex-1 flex flex-col min-h-0 transition-all duration-300 ${
+      {/* 左侧工单内容栏，宽度与工具栏一致 w-80，固定 */}
+      <div className="fixed top-0 left-0 w-80 h-full bg-white border-r border-gray-100 z-20 flex flex-col overflow-y-auto">
+        <TicketContent 
+          originalContent={ticketContent.original}
+          translatedContent={ticketContent.translated}
+          language={detectedLanguage}
+        />
+      </div>
+      {/* 主体内容，左侧留出 w-80 空间 */}
+      <div className={`flex-1 flex flex-col min-h-0 transition-all duration-300 ml-80 ${
         showTranslation || showSearch ? 'mr-80' : 'mr-0'
       }`}>
         <div className="flex-none px-4 py-3 bg-white border-b border-gray-100">
@@ -302,15 +311,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
-        <div className="flex-none bg-white border-b border-gray-100">
-          <TicketContent 
-            originalContent={ticketContent.original}
-            translatedContent={ticketContent.translated}
-            language={detectedLanguage}
-          />
-        </div>
-
+        {/* 移除原有 TicketContent 位置 */}
         <div className="flex-1 min-h-0 bg-white">
           <ChatInterface
             messages={messages}
@@ -321,7 +322,7 @@ export default function Home() {
           />
         </div>
       </div>
-      
+      {/* 右侧工具栏不变 */}
       <div
         className={`fixed top-0 right-0 w-80 h-full bg-white border-l border-gray-100 transform transition-transform duration-300 ${
           showTranslation || showSearch ? 'translate-x-0' : 'translate-x-full'
