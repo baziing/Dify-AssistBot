@@ -26,7 +26,7 @@ export function TicketContent({ originalContent, translatedContent, language }: 
   const hasMoreContent = currentContent && (currentContent.split('\n').length > 3 || currentContent.length > 200);
 
   // 新增：尝试将内容解析为JSON数组（兼容 text 字段为对象字符串的情况，做简单粗暴的替换）
-  let messageList: { text?: string; picture?: string }[] = [];
+  let messageList: { text?: string; picture?: string; role?: string }[] = [];
   if (Array.isArray(currentContent)) {
     messageList = currentContent;
   } else if (
@@ -106,9 +106,13 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                 const bubbles = parseTextToBubbles(msg.text);
                 const isEmptyText = !bubbles[0] || !bubbles[0].value || String(bubbles[0].value).trim() === '';
                 const isEmptyPic = !msg.picture || msg.picture.trim() === '';
+                // 判断role，去除不可见字符
+                const roleStr = (msg.role || '').replace(/[\u200b\u200c\u200d\ufeff]/g, '');
+                const isCustomer = !roleStr || roleStr === 'customer';
+                const bubbleAlign = isCustomer ? 'self-start' : 'self-end';
                 if ((bubbles.length === 0 || isEmptyText) && !isEmptyPic) {
                   return (
-                    <div key={idx} className="self-start max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words">
+                    <div key={idx} className={`${bubbleAlign} max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words`}>
                       {msg.picture && msg.picture.split(';').map((url, i) => {
                         const trimmed = url.trim();
                         const fullUrl = trimmed.startsWith('https://static.neocraftstudio.com')
@@ -130,12 +134,18 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                 if (isEmptyText && isEmptyPic) {
                   return null;
                 }
-                // 否则每个 key-value 单独显示，图片只显示一次
-                return bubbles.map((bubble, bidx) => (
-                  <div key={idx + '-' + bidx} className="self-start max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words">
-                    {'key' in bubble && bubble.key && <div className="font-semibold text-gray-500 mb-1">{bubble.key}</div>}
-                    <div>{String(bubble.value)}</div>
-                    {bidx === 0 && msg.picture && msg.picture.split(';').map((url, i) => {
+                // 新：所有key-value放在同一个气泡，key灰色加粗，key-value对换行，图片在下方
+                return (
+                  <div key={idx} className={`${bubbleAlign} max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words`}>
+                    {bubbles.map((bubble, bidx) => (
+                      <div key={bidx} className="mb-2">
+                        {'key' in bubble && bubble.key && (
+                          <div className="font-semibold text-gray-500 mb-0.5">{bubble.key}</div>
+                        )}
+                        <div className="break-words whitespace-pre-wrap">{String(bubble.value)}</div>
+                      </div>
+                    ))}
+                    {msg.picture && msg.picture.split(';').map((url, i) => {
                       const trimmed = url.trim();
                       const fullUrl = trimmed.startsWith('https://static.neocraftstudio.com')
                         ? trimmed
@@ -151,7 +161,7 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                       );
                     })}
                   </div>
-                ));
+                );
               })
             ) : (
               <div className="self-start max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words">
