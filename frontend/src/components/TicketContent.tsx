@@ -12,6 +12,8 @@ interface TicketContentProps {
 export function TicketContent({ originalContent, translatedContent, language }: TicketContentProps) {
   const [showOriginal, setShowOriginal] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  // 新增：图片预览弹窗状态
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
 
   // 处理原始内容，移除"【工单】"前缀
   const processOriginalContent = (content?: string) => {
@@ -100,7 +102,6 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                 const bubbles = parseTextToBubbles(msg.text);
                 const isEmptyText = !bubbles[0] || !bubbles[0].value || String(bubbles[0].value).trim() === '';
                 const isEmptyPic = !msg.picture || msg.picture.trim() === '';
-                // 新增：如果 bubbles 为空但有图片，也渲染图片气泡
                 if ((bubbles.length === 0 || isEmptyText) && !isEmptyPic) {
                   return (
                     <div key={idx} className="self-start max-w-[90%] bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-700 shadow-sm whitespace-pre-wrap break-words">
@@ -110,7 +111,13 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                           ? trimmed
                           : `https://static.neocraftstudio.com${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
                         return trimmed && (
-                          <img key={i} src={fullUrl} alt="图片" className="mt-2 max-w-full rounded" />
+                          <img
+                            key={i}
+                            src={fullUrl}
+                            alt="图片"
+                            className="mt-2 h-24 w-24 object-cover rounded cursor-pointer inline-block mr-2"
+                            onClick={() => setPreviewImg(fullUrl)}
+                          />
                         );
                       })}
                     </div>
@@ -130,7 +137,13 @@ export function TicketContent({ originalContent, translatedContent, language }: 
                         ? trimmed
                         : `https://static.neocraftstudio.com${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
                       return trimmed && (
-                        <img key={i} src={fullUrl} alt="图片" className="mt-2 max-w-full rounded" />
+                        <img
+                          key={i}
+                          src={fullUrl}
+                          alt="图片"
+                          className="mt-2 h-24 w-24 object-cover rounded cursor-pointer inline-block mr-2"
+                          onClick={() => setPreviewImg(fullUrl)}
+                        />
                       );
                     })}
                   </div>
@@ -146,6 +159,12 @@ export function TicketContent({ originalContent, translatedContent, language }: 
           <div className="text-sm text-gray-400"> </div>
         )}
       </div>
+      {/* 图片预览弹窗 */}
+      {previewImg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60" onClick={() => setPreviewImg(null)}>
+          <img src={previewImg} alt="预览" className="max-h-[90vh] max-w-[90vw] rounded shadow-lg" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
     </div>
   );
 } 
