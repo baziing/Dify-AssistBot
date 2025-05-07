@@ -292,8 +292,8 @@ export function ChatInterface({
               <div className="absolute right-2 bottom-2">
                 <Button
                   type="submit"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
                   disabled={!input.trim()}
                 >
                   <Send className="h-4 w-4" />

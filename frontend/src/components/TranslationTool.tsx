@@ -110,8 +110,8 @@ export const TranslationTool = forwardRef<{ resetTool: () => void }, Translation
           
           <div className="flex justify-center">
             <Button
-              size="icon"
-              className="h-8 w-8 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
+              size="sm"
+              className="h-8 w-8 p-0 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
               onClick={handleTranslate}
               disabled={!sourceText.trim() || isTranslating}
               title="翻译"
